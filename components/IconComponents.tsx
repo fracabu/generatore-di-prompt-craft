@@ -127,3 +127,15 @@ export const DocumentDuplicateIcon: React.FC<{ className?: string }> = ({ classN
       <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125h6.75a1.125 1.125 0 0 1 1.125 1.125v3.375m0 0h3.375a1.125 1.125 0 0 1 1.125 1.125v9.75a1.125 1.125 0 0 1-1.125 1.125h-3.375m0-12.75h3.375m-3.375 0h-3.375m12.75 0v12.75" />
     </svg>
 );
+
+export const Bars3Icon: React.FC<{ className?: string }> = ({ className = "w-6 h-6" }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+    </svg>
+);
+
+export const XMarkIcon: React.FC<{ className?: string }> = ({ className = "w-6 h-6" }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+);
