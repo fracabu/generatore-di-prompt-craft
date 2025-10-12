@@ -127,52 +127,52 @@ const HomeView: React.FC = () => {
   };
 
   return (
-    <div className="bg-slate-900 text-slate-200 font-sans h-screen flex flex-col">
+    <div className="bg-slate-900 text-slate-200 font-sans h-screen flex flex-col overflow-hidden">
       {showTutorial && <TutorialModal onClose={() => setShowTutorial(false)} />}
       {error && <WarningModal title="Attenzione" onClose={() => setError(null)}><p>{error}</p></WarningModal>}
 
-      <div className="flex-1 max-w-5xl mx-auto w-full p-4 sm:p-6 lg:p-8 flex flex-col">
+      <div className="flex-1 max-w-6xl mx-auto w-full px-4 py-3 flex flex-col overflow-hidden">
         {/* Header Section */}
-        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 flex-shrink-0">
           <div className="flex items-center space-x-3">
-            <div className="bg-emerald-500/20 p-3 rounded-full">
-              <SparklesIcon className="w-8 h-8 text-emerald-400" />
+            <div className="bg-emerald-500/20 p-2 rounded-full">
+              <SparklesIcon className="w-6 h-6 text-emerald-400" />
             </div>
             <div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-100">Crea un nuovo Prompt</h2>
-              <p className="text-slate-400 mt-1">Inserisci un argomento e genera un prompt C.R.A.F.T. personalizzato</p>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-100">Crea un nuovo Prompt</h2>
+              <p className="text-slate-400 text-sm">Inserisci un argomento e genera un prompt C.R.A.F.T.</p>
             </div>
           </div>
           <button 
             onClick={() => setShowTutorial(true)}
-            className="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-semibold py-2 px-4 rounded-lg transition-colors duration-200"
+            className="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-semibold py-2 px-3 rounded-lg transition-colors duration-200 text-sm"
             aria-label="Mostra tutorial C.R.A.F.T."
           >
-            <QuestionMarkIcon className="w-5 h-5" />
+            <QuestionMarkIcon className="w-4 h-4" />
             <span>Cos'è C.R.A.F.T.?</span>
           </button>
         </header>
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col gap-6">
+        <div className="flex-1 flex flex-col gap-3 min-h-0">
           {/* Input Section */}
-          <section className="bg-slate-800/50 border border-slate-700 p-6 rounded-2xl shadow-lg mt-8">
-            <label htmlFor="topic-input" className="block text-lg font-semibold text-sky-400 mb-2">1. Inserisci il tuo argomento</label>
-            <p className="text-slate-400 mb-4 text-sm">Descrivi brevemente cosa vuoi ottenere. Ad esempio: "un'email di marketing per un nuovo prodotto" o "un post per un blog sui benefici dello yoga".</p>
-            <div className="flex flex-col sm:flex-row gap-4">
+          <section className="bg-slate-800/50 border border-slate-700 p-4 rounded-xl shadow-lg flex-shrink-0">
+            <label htmlFor="topic-input" className="block text-base font-semibold text-sky-400 mb-2">1. Inserisci il tuo argomento</label>
+            <p className="text-slate-400 mb-3 text-xs">Descrivi cosa vuoi ottenere. Es: "un'email di marketing per un nuovo prodotto"</p>
+            <div className="flex flex-col sm:flex-row gap-3">
               <input
                 id="topic-input"
                 type="text"
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
                 placeholder="Es: Una sceneggiatura per un video YouTube sui viaggi spaziali"
-                className="flex-grow bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
+                className="flex-grow bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all text-sm"
                 onKeyDown={(e) => e.key === 'Enter' && handleGeneratePrompt()}
               />
               <button
                 onClick={handleGeneratePrompt}
                 disabled={isLoading}
-                className="pushable-3d relative border-none bg-transparent p-0 cursor-pointer outline-offset-4 transition-all duration-250 hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed group"
+                className="pushable-3d relative border-none bg-transparent p-0 cursor-pointer outline-offset-4 transition-all duration-250 hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed group whitespace-nowrap"
                 style={{ transformStyle: 'preserve-3d' }}
                 onMouseEnter={(e) => {
                   const shadow = e.currentTarget.querySelector('span:first-child');
@@ -215,17 +215,17 @@ const HomeView: React.FC = () => {
                   className="absolute top-0 left-0 w-full h-full rounded-xl bg-gradient-to-l from-sky-950 via-sky-700 to-sky-950"
                 />
                 <span 
-                  className="relative flex items-center justify-center px-6 py-3 rounded-xl text-white font-semibold bg-sky-600 transition-transform duration-300 ease-out"
+                  className="relative flex items-center justify-center px-4 py-2 rounded-xl text-white font-semibold bg-sky-600 transition-transform duration-300 ease-out text-sm"
                   style={{ transform: 'translateY(-2px)' }}
                 >
                   {isLoading ? (
                     <>
-                      <div className="w-5 h-5 border-2 border-t-white border-slate-400 rounded-full animate-spin mr-2"></div>
+                      <div className="w-4 h-4 border-2 border-t-white border-slate-400 rounded-full animate-spin mr-2"></div>
                       <span>Generazione...</span>
                     </>
                   ) : (
                     <>
-                      <SparklesIcon className="w-5 h-5 mr-2" />
+                      <SparklesIcon className="w-4 h-4 mr-2" />
                       <span>Genera Prompt</span>
                     </>
                   )}
@@ -235,22 +235,22 @@ const HomeView: React.FC = () => {
           </section>
 
           {/* Provider Selection */}
-          <section className="bg-slate-800/50 border border-slate-700 p-6 rounded-2xl shadow-lg">
-            <label className="block text-lg font-semibold text-purple-400 mb-4">2. Scegli il provider AI</label>
-            <div className="grid grid-cols-2 gap-4">
+          <section className="bg-slate-800/50 border border-slate-700 p-4 rounded-xl shadow-lg flex-shrink-0">
+            <label className="block text-base font-semibold text-purple-400 mb-3">2. Scegli il provider AI</label>
+            <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={() => setSelectedProvider('gemini')}
                 disabled={!localStorage.getItem('gemini_api_key')}
-                className={`relative p-4 rounded-lg border-2 transition-all duration-200 ${
+                className={`relative p-3 rounded-lg border-2 transition-all duration-200 ${
                   selectedProvider === 'gemini'
                     ? 'border-emerald-500 bg-emerald-500/10'
                     : 'border-slate-600 bg-slate-900/50 hover:border-slate-500'
                 } ${!localStorage.getItem('gemini_api_key') ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
               >
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2">
                   <div className={`w-3 h-3 rounded-full ${selectedProvider === 'gemini' ? 'bg-emerald-500' : 'bg-slate-600'}`} />
                   <div className="text-left">
-                    <h4 className="font-semibold text-emerald-400">Google Gemini</h4>
+                    <h4 className="font-semibold text-emerald-400 text-sm">Google Gemini</h4>
                     <p className="text-xs text-slate-400">
                       {localStorage.getItem('gemini_api_key') ? 'Configurato' : 'Non configurato'}
                     </p>
@@ -261,16 +261,16 @@ const HomeView: React.FC = () => {
               <button
                 onClick={() => setSelectedProvider('openai')}
                 disabled={!localStorage.getItem('openai_api_key')}
-                className={`relative p-4 rounded-lg border-2 transition-all duration-200 ${
+                className={`relative p-3 rounded-lg border-2 transition-all duration-200 ${
                   selectedProvider === 'openai'
                     ? 'border-sky-500 bg-sky-500/10'
                     : 'border-slate-600 bg-slate-900/50 hover:border-slate-500'
                 } ${!localStorage.getItem('openai_api_key') ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
               >
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2">
                   <div className={`w-3 h-3 rounded-full ${selectedProvider === 'openai' ? 'bg-sky-500' : 'bg-slate-600'}`} />
                   <div className="text-left">
-                    <h4 className="font-semibold text-sky-400">OpenAI GPT-4</h4>
+                    <h4 className="font-semibold text-sky-400 text-sm">OpenAI GPT-4</h4>
                     <p className="text-xs text-slate-400">
                       {localStorage.getItem('openai_api_key') ? 'Configurato' : 'Non configurato'}
                     </p>
@@ -281,22 +281,22 @@ const HomeView: React.FC = () => {
           </section>
 
           {/* Suggestion Cards */}
-          <section className="bg-slate-800/30 border border-slate-700 p-6 rounded-2xl">
-            <h3 className="text-lg font-semibold text-emerald-400 mb-4">Idee per iniziare</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <section className="bg-slate-800/30 border border-slate-700 p-4 rounded-xl flex-1 min-h-0 overflow-hidden">
+            <h3 className="text-base font-semibold text-emerald-400 mb-3">Idee per iniziare</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 overflow-y-auto max-h-full">
               {currentSuggestions.map((suggestion, index) => (
                 <div 
                   key={suggestion.id}
-                  className="bg-slate-700/50 border border-slate-600 p-4 rounded-lg cursor-pointer hover:bg-slate-700/70 hover:border-slate-500 transition-all duration-200"
+                  className="bg-slate-700/50 border border-slate-600 p-3 rounded-lg cursor-pointer hover:bg-slate-700/70 hover:border-slate-500 transition-all duration-200"
                   onClick={() => setTopic(suggestion.topic)}
                 >
-                  <h4 className="font-semibold text-sky-400 mb-2">
+                  <h4 className="font-semibold text-sky-400 mb-1 text-sm">
                     {index === 0 && '🌱 Marketing Sostenibile'}
                     {index === 1 && '🍳 Blog di Cucina'}
                     {index === 2 && '💡 Tecnologia Semplice'}
-                    {index === 3 && '🚀 Viaggi Spaziali'}
+                    {index === 3 && '🎨 Creatività Digitale'}
                   </h4>
-                  <p className="text-slate-300 text-sm">{suggestion.prompt.contexto.substring(0, 80)}...</p>
+                  <p className="text-slate-300 text-xs">{suggestion.topic}</p>
                 </div>
               ))}
             </div>
