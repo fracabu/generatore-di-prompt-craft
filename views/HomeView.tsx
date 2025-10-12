@@ -216,18 +216,24 @@ const HomeView: React.FC = () => {
           {/* Suggestion Cards Carousel */}
           <section className="bg-slate-800/30 border border-slate-700 p-4 rounded-xl flex-1 min-h-0 overflow-hidden">
             <h3 className="text-base font-semibold text-emerald-400 mb-3">Idee per iniziare</h3>
-            <div className="relative h-full flex items-center">
-              <div className="flex gap-4 overflow-hidden">
+            <div className="relative h-full flex items-center justify-center">
+              <div className="flex gap-3 overflow-hidden">
                 {currentSuggestions.map((suggestion, index) => (
                   <div 
                     key={suggestion.id}
-                    className="flex-shrink-0 w-full max-w-md bg-slate-700/50 border border-slate-600 p-4 rounded-lg cursor-pointer hover:bg-slate-700/70 hover:border-slate-500 transition-all duration-300 transform hover:scale-105"
+                    className="flex-shrink-0 w-64 h-64 bg-slate-700/50 border border-slate-600 p-4 rounded-lg cursor-pointer hover:bg-slate-700/70 hover:border-slate-500 transition-all duration-300 transform hover:scale-105 flex flex-col justify-between"
                     onClick={() => setTopic(suggestion.topic)}
                   >
-                    <h4 className="font-semibold text-sky-400 mb-2 text-sm">
-                      {suggestion.topic.length > 50 ? suggestion.topic.substring(0, 50) + '...' : suggestion.topic}
-                    </h4>
-                    <p className="text-slate-300 text-xs leading-relaxed">{suggestion.topic}</p>
+                    <div>
+                      <h4 className="font-semibold text-sky-400 mb-3 text-sm leading-tight">
+                        {suggestion.topic.length > 60 ? suggestion.topic.substring(0, 60) + '...' : suggestion.topic}
+                      </h4>
+                    </div>
+                    <div className="flex items-end justify-center">
+                      <p className="text-slate-300 text-xs text-center leading-relaxed">
+                        {suggestion.topic.length > 80 ? suggestion.topic.substring(0, 80) + '...' : suggestion.topic}
+                      </p>
+                    </div>
                   </div>
                 ))}
               </div>
