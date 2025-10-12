@@ -17,11 +17,13 @@ const ResultView: React.FC = () => {
   const [savedPrompts, setSavedPrompts] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState<'gemini' | 'openai'>('gemini');
 
   useEffect(() => {
     // Carica i dati dal localStorage
     const storedTopic = localStorage.getItem('currentTopic');
     const storedPrompt = localStorage.getItem('currentCraftPrompt');
+    const storedProvider = localStorage.getItem('selectedProvider') as 'gemini' | 'openai';
     
     if (storedTopic) setTopic(storedTopic);
     if (storedPrompt) {
@@ -30,6 +32,9 @@ const ResultView: React.FC = () => {
       } catch (e) {
         console.error("Failed to parse stored prompt", e);
       }
+    }
+    if (storedProvider) {
+      setSelectedProvider(storedProvider);
     }
 
     // Carica i prompt salvati
@@ -77,6 +82,7 @@ const ResultView: React.FC = () => {
     }
     // Salva il prompt corrente per il test e naviga
     localStorage.setItem('testPrompt', fullPrompt);
+    localStorage.setItem('testProvider', selectedProvider);
     navigate('/test');
   };
 
@@ -149,8 +155,18 @@ const ResultView: React.FC = () => {
               </div>
             ))}
           </div>
+        </section>
+
+        {/* Preview Section */}
+        <section className="bg-slate-800/50 border border-slate-700 p-6 rounded-2xl shadow-lg">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-fuchsia-400">Anteprima del Prompt</h3>
+          </div>
+          <div className="bg-slate-900/50 p-4 rounded-lg whitespace-pre-wrap text-slate-300 font-mono text-sm mb-6">
+            {combinePrompt(craftPrompt)}
+          </div>
           
-          <div className="mt-6 flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-4">
             <button 
               onClick={handleSavePrompt} 
               className="pushable-3d relative border-none bg-transparent p-0 cursor-pointer outline-offset-4 transition-all duration-250 hover:brightness-110 group"
@@ -305,23 +321,6 @@ const ResultView: React.FC = () => {
                 {copied ? 'Copiato!' : 'Copia Prompt'}
               </span>
             </button>
-          </div>
-        </section>
-
-        {/* Preview Section */}
-        <section className="bg-slate-800/50 border border-slate-700 p-6 rounded-2xl shadow-lg">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-fuchsia-400">Anteprima del Prompt</h3>
-            <button
-              onClick={handleCopyPrompt}
-              className="text-slate-400 hover:text-slate-200 transition-colors p-2"
-              title="Copia prompt"
-            >
-              {copied ? <CheckIcon className="w-5 h-5 text-green-400" /> : <DocumentDuplicateIcon className="w-5 h-5" />}
-            </button>
-          </div>
-          <div className="bg-slate-900/50 p-4 rounded-lg whitespace-pre-wrap text-slate-300 font-mono text-sm">
-            {combinePrompt(craftPrompt)}
           </div>
         </section>
       </div>

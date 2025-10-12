@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { CraftPrompt } from '../types';
-import { generateCraftPrompt } from '../services/geminiService';
+import { generateCraftPrompt } from '../services/aiService';
 import { examplePrompts } from '../data/examplePrompts';
 import { SparklesIcon, QuestionMarkIcon } from '../components/IconComponents';
 import TutorialModal from '../components/TutorialModal';
@@ -23,20 +23,32 @@ const HomeView: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showTutorial, setShowTutorial] = useState(false);
   const [currentSuggestions, setCurrentSuggestions] = useState(examplePrompts.slice(0, 4));
+  const [selectedProvider, setSelectedProvider] = useState<'gemini' | 'openai'>('gemini');
   const [hasApiKey, setHasApiKey] = useState(false);
 
-  // Controlla se la chiave API è configurata
+  // Controlla se le chiavi API sono configurate
   useEffect(() => {
-    const checkApiKey = () => {
-      const apiKey = localStorage.getItem('gemini_api_key');
-      setHasApiKey(!!apiKey);
+    const checkApiKeys = () => {
+      const geminiKey = localStorage.getItem('gemini_api_key');
+      const openaiKey = localStorage.getItem('openai_api_key');
+      const hasGeminiKey = !!geminiKey;
+      const hasOpenaiKey = !!openaiKey;
+      
+      // Se il provider selezionato non ha una chiave, prova a cambiare provider
+      if (selectedProvider === 'gemini' && !hasGeminiKey && hasOpenaiKey) {
+        setSelectedProvider('openai');
+      } else if (selectedProvider === 'openai' && !hasOpenaiKey && hasGeminiKey) {
+        setSelectedProvider('gemini');
+      }
+      
+      setHasApiKey(!!(geminiKey || openaiKey));
     };
     
-    checkApiKey();
+    checkApiKeys();
     
     // Ascolta i cambiamenti al localStorage
     const handleStorageChange = () => {
-      checkApiKey();
+      checkApiKeys();
     };
     
     window.addEventListener('storage', handleStorageChange);
@@ -46,7 +58,7 @@ const HomeView: React.FC = () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('localStorageChange', handleStorageChange);
     };
-  }, []);
+  }, [selectedProvider]);
 
   // Pulisci i dati precedenti all'avvio
   useEffect(() => {
@@ -75,8 +87,21 @@ const HomeView: React.FC = () => {
   }, []);
 
   const handleGeneratePrompt = async () => {
-    if (!hasApiKey) {
-      setError("Per favore, configura la tua chiave API Gemini cliccando sul pulsante 'API' in alto a destra.");
+    const geminiKey = localStorage.getItem('gemini_api_key');
+    const openaiKey = localStorage.getItem('openai_api_key');
+    
+    if (!geminiKey && !openaiKey) {
+      setError("Per favore, configura una chiave API cliccando sul pulsante 'API' in alto a destra.");
+      return;
+    }
+    
+    if (selectedProvider === 'gemini' && !geminiKey) {
+      setError("Chiave API Gemini non configurata. Seleziona OpenAI o configura la chiave Gemini.");
+      return;
+    }
+    
+    if (selectedProvider === 'openai' && !openaiKey) {
+      setError("Chiave API OpenAI non configurata. Seleziona Gemini o configura la chiave OpenAI.");
       return;
     }
     
@@ -87,11 +112,12 @@ const HomeView: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const generatedPrompt = await generateCraftPrompt(topic);
+      const generatedPrompt = await generateCraftPrompt(topic, selectedProvider);
       setCraftPrompt(generatedPrompt);
       // Salva i dati nello stato globale o localStorage e naviga
       localStorage.setItem('currentTopic', topic);
       localStorage.setItem('currentCraftPrompt', JSON.stringify(generatedPrompt));
+      localStorage.setItem('selectedProvider', selectedProvider);
       navigate('/result');
     } catch (err: any) {
       setError(err.message || "Si è verificato un errore sconosciuto.");
@@ -204,6 +230,52 @@ const HomeView: React.FC = () => {
                     </>
                   )}
                 </span>
+              </button>
+            </div>
+          </section>
+
+          {/* Provider Selection */}
+          <section className="bg-slate-800/50 border border-slate-700 p-6 rounded-2xl shadow-lg">
+            <label className="block text-lg font-semibold text-purple-400 mb-4">2. Scegli il provider AI</label>
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                onClick={() => setSelectedProvider('gemini')}
+                disabled={!localStorage.getItem('gemini_api_key')}
+                className={`relative p-4 rounded-lg border-2 transition-all duration-200 ${
+                  selectedProvider === 'gemini'
+                    ? 'border-emerald-500 bg-emerald-500/10'
+                    : 'border-slate-600 bg-slate-900/50 hover:border-slate-500'
+                } ${!localStorage.getItem('gemini_api_key') ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+              >
+                <div className="flex items-center space-x-3">
+                  <div className={`w-3 h-3 rounded-full ${selectedProvider === 'gemini' ? 'bg-emerald-500' : 'bg-slate-600'}`} />
+                  <div className="text-left">
+                    <h4 className="font-semibold text-emerald-400">Google Gemini</h4>
+                    <p className="text-xs text-slate-400">
+                      {localStorage.getItem('gemini_api_key') ? 'Configurato' : 'Non configurato'}
+                    </p>
+                  </div>
+                </div>
+              </button>
+              
+              <button
+                onClick={() => setSelectedProvider('openai')}
+                disabled={!localStorage.getItem('openai_api_key')}
+                className={`relative p-4 rounded-lg border-2 transition-all duration-200 ${
+                  selectedProvider === 'openai'
+                    ? 'border-sky-500 bg-sky-500/10'
+                    : 'border-slate-600 bg-slate-900/50 hover:border-slate-500'
+                } ${!localStorage.getItem('openai_api_key') ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+              >
+                <div className="flex items-center space-x-3">
+                  <div className={`w-3 h-3 rounded-full ${selectedProvider === 'openai' ? 'bg-sky-500' : 'bg-slate-600'}`} />
+                  <div className="text-left">
+                    <h4 className="font-semibold text-sky-400">OpenAI GPT-4</h4>
+                    <p className="text-xs text-slate-400">
+                      {localStorage.getItem('openai_api_key') ? 'Configurato' : 'Non configurato'}
+                    </p>
+                  </div>
+                </div>
               </button>
             </div>
           </section>

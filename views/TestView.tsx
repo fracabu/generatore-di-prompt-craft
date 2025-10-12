@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { testGeneratedPrompt } from '../services/geminiService';
+import { testGeneratedPrompt } from '../services/aiService';
 import { ArrowLeftIcon, TestTubeIcon, ClipboardIcon, CheckIcon } from '../components/IconComponents';
 import WarningModal from '../components/WarningModal';
 
@@ -11,21 +11,30 @@ const TestView: React.FC = () => {
   const [isTesting, setIsTesting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState<'gemini' | 'openai'>('gemini');
 
   useEffect(() => {
-    // Carica il prompt da testare dal localStorage
+    // Carica il prompt e il provider dal localStorage
     const storedPrompt = localStorage.getItem('testPrompt');
+    const storedProvider = localStorage.getItem('testProvider') as 'gemini' | 'openai';
+    
+    if (storedProvider) {
+      setSelectedProvider(storedProvider);
+    }
+    
     if (storedPrompt) {
       setTestPrompt(storedPrompt);
       // Esegui automaticamente il test quando la pagina viene caricata
-      handleTestPrompt(storedPrompt);
+      handleTestPrompt(storedPrompt, storedProvider || 'gemini');
     } else {
       setError("Nessun prompt da testare trovato. Torna indietro e genera un prompt prima di testarlo.");
     }
   }, []);
 
-  const handleTestPrompt = async (promptToTest?: string) => {
+  const handleTestPrompt = async (promptToTest?: string, provider?: 'gemini' | 'openai') => {
     const prompt = promptToTest || testPrompt;
+    const testProvider = provider || selectedProvider;
+    
     if (!prompt.trim()) {
       setError("Il prompt è vuoto. Non posso eseguire il test.");
       return;
@@ -35,7 +44,7 @@ const TestView: React.FC = () => {
     setTestResult('');
     setError(null);
     try {
-      const result = await testGeneratedPrompt(prompt);
+      const result = await testGeneratedPrompt(prompt, testProvider);
       setTestResult(result);
     } catch (err: any) {
       setError(err.message || "Si è verificato un errore durante il test del prompt.");
@@ -57,7 +66,7 @@ const TestView: React.FC = () => {
 
   const handleRetest = () => {
     if (testPrompt) {
-      handleTestPrompt(testPrompt);
+      handleTestPrompt(testPrompt, selectedProvider);
     }
   };
 
