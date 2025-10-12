@@ -24,6 +24,7 @@ const HomeView: React.FC = () => {
   const [showTutorial, setShowTutorial] = useState(false);
   const [currentSuggestions, setCurrentSuggestions] = useState(examplePrompts.slice(0, 3));
   const [hasApiKey, setHasApiKey] = useState(false);
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
   // Icon mapping per i suggerimenti
   const getSuggestionIcon = (topic: string) => {
@@ -71,6 +72,15 @@ const HomeView: React.FC = () => {
     localStorage.removeItem('currentCraftPrompt');
     localStorage.removeItem('testPrompt');
   }, []);
+
+  // Auto-resize textarea
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 128)}px`;
+    }
+  }, [topic]);
 
   // Carousel animation - mostra 3 card che scorrono verso destra
   useEffect(() => {
@@ -121,7 +131,7 @@ const HomeView: React.FC = () => {
   };
 
   return (
-    <div className="bg-slate-900 text-slate-200 font-sans h-screen flex flex-col overflow-hidden">
+    <div className="bg-slate-900 text-slate-200 font-sans flex-1 flex flex-col overflow-hidden">
       {showTutorial && <TutorialModal onClose={() => setShowTutorial(false)} />}
       {error && <WarningModal title="Attenzione" onClose={() => setError(null)}><p>{error}</p></WarningModal>}
 
@@ -154,14 +164,21 @@ const HomeView: React.FC = () => {
             <label htmlFor="topic-input" className="block text-base font-semibold text-sky-400 mb-2">1. Inserisci il tuo argomento</label>
             <p className="text-slate-400 mb-3 text-xs">Descrivi cosa vuoi ottenere. Es: "un'email di marketing per un nuovo prodotto"</p>
             <div className="flex flex-col sm:flex-row gap-3">
-              <input
+              <textarea
+                ref={textareaRef}
                 id="topic-input"
-                type="text"
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
                 placeholder="Es: Una sceneggiatura per un video YouTube sui viaggi spaziali"
-                className="flex-grow bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all text-sm"
-                onKeyDown={(e) => e.key === 'Enter' && handleGeneratePrompt()}
+                className="flex-grow bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all text-sm resize-none overflow-hidden scrollbar-hide"
+                style={{ minHeight: '40px', maxHeight: '128px' }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleGeneratePrompt();
+                  }
+                }}
+                rows={1}
               />
               <button
                 onClick={handleGeneratePrompt}
@@ -231,35 +248,34 @@ const HomeView: React.FC = () => {
 
 
           {/* Suggestion Cards Carousel */}
-          <section className="bg-slate-800/30 border border-slate-700 p-4 rounded-xl">
-            <h3 className="text-base font-semibold text-emerald-400 mb-3">Idee per iniziare</h3>
-            <div className="flex gap-3 overflow-hidden justify-center">
+          <section className="bg-slate-800/30 border border-slate-700 p-3 rounded-xl flex-shrink-0">
+            <h3 className="text-base font-semibold text-emerald-400 mb-2">Idee per iniziare</h3>
+            <div className="flex gap-3 overflow-hidden justify-center py-2">
               {currentSuggestions.map((suggestion, index) => {
                 const IconComponent = getSuggestionIcon(suggestion.topic);
                 return (
                   <div 
                     key={suggestion.id}
-                    className="flex-shrink-0 w-64 h-64 bg-slate-700/50 border border-slate-600 p-4 rounded-lg cursor-pointer hover:bg-slate-700/70 hover:border-slate-500 transition-all duration-300 transform hover:scale-105 flex flex-col"
-                    onClick={() => setTopic(suggestion.topic)}
+                    className="flex-1 max-w-xs bg-slate-700/50 border border-slate-600 p-4 rounded-lg cursor-pointer hover:bg-slate-700/70 hover:border-slate-500 transition-all duration-300 transform hover:scale-105 flex flex-col h-64"
+                    onClick={() => setTopic(suggestion.prompt.azione)}
                   >
                     {/* Icona in alto */}
-                    <div className="flex justify-center mb-3">
+                    <div className="flex justify-center mb-4">
                       <div className="bg-slate-600/50 p-3 rounded-full">
                         <IconComponent className="w-8 h-8 text-sky-400" />
                       </div>
                     </div>
                     
-                    {/* Titolo */}
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-sky-400 mb-2 text-sm leading-tight text-center">
-                        {suggestion.topic.length > 50 ? suggestion.topic.substring(0, 50) + '...' : suggestion.topic}
+                    {/* Contenuto centrato */}
+                    <div className="flex-1 flex flex-col justify-center items-center text-center space-y-3">
+                      {/* Titolo */}
+                      <h4 className="font-semibold text-sky-400 text-base leading-relaxed px-2">
+                        {suggestion.topic}
                       </h4>
-                    </div>
-                    
-                    {/* Descrizione dal prompt C.R.A.F.T. */}
-                    <div className="mt-auto">
-                      <p className="text-slate-300 text-xs text-center leading-relaxed">
-                        {suggestion.prompt.azione.length > 100 ? suggestion.prompt.azione.substring(0, 100) + '...' : suggestion.prompt.azione}
+                      
+                      {/* Descrizione dal prompt C.R.A.F.T. */}
+                      <p className="text-slate-300 text-sm leading-relaxed px-2 line-clamp-4">
+                        {suggestion.prompt.azione}
                       </p>
                     </div>
                   </div>
