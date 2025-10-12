@@ -55,21 +55,21 @@ const HomeView: React.FC = () => {
     localStorage.removeItem('testPrompt');
   }, []);
 
-  // Ruota le suggestioni ogni 10 secondi
+  // Carousel animation - mostra 3 card che scorrono verso destra
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSuggestions(prev => {
         const currentIndex = examplePrompts.findIndex(p => p.id === prev[0].id);
-        const nextIndex = (currentIndex + 4) % examplePrompts.length;
-        // Gestisci il caso in cui non ci sono abbastanza suggerimenti rimanenti
+        const nextIndex = (currentIndex + 1) % examplePrompts.length;
+        // Prendi 3 suggerimenti consecutivi
         const suggestions = [];
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < 3; i++) {
           const index = (nextIndex + i) % examplePrompts.length;
           suggestions.push(examplePrompts[index]);
         }
         return suggestions;
       });
-    }, 10000);
+    }, 3000); // Cambia ogni 3 secondi per un effetto più fluido
 
     return () => clearInterval(interval);
   }, []);
@@ -213,22 +213,24 @@ const HomeView: React.FC = () => {
 
 
 
-          {/* Suggestion Cards */}
+          {/* Suggestion Cards Carousel */}
           <section className="bg-slate-800/30 border border-slate-700 p-4 rounded-xl flex-1 min-h-0 overflow-hidden">
             <h3 className="text-base font-semibold text-emerald-400 mb-3">Idee per iniziare</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 overflow-y-auto max-h-full">
-              {currentSuggestions.map((suggestion, index) => (
-                <div 
-                  key={suggestion.id}
-                  className="bg-slate-700/50 border border-slate-600 p-3 rounded-lg cursor-pointer hover:bg-slate-700/70 hover:border-slate-500 transition-all duration-200"
-                  onClick={() => setTopic(suggestion.topic)}
-                >
-                  <h4 className="font-semibold text-sky-400 mb-1 text-sm">
-                    {suggestion.topic.length > 40 ? suggestion.topic.substring(0, 40) + '...' : suggestion.topic}
-                  </h4>
-                  <p className="text-slate-300 text-xs">{suggestion.topic}</p>
-                </div>
-              ))}
+            <div className="relative h-full flex items-center">
+              <div className="flex gap-4 overflow-hidden">
+                {currentSuggestions.map((suggestion, index) => (
+                  <div 
+                    key={suggestion.id}
+                    className="flex-shrink-0 w-full max-w-md bg-slate-700/50 border border-slate-600 p-4 rounded-lg cursor-pointer hover:bg-slate-700/70 hover:border-slate-500 transition-all duration-300 transform hover:scale-105"
+                    onClick={() => setTopic(suggestion.topic)}
+                  >
+                    <h4 className="font-semibold text-sky-400 mb-2 text-sm">
+                      {suggestion.topic.length > 50 ? suggestion.topic.substring(0, 50) + '...' : suggestion.topic}
+                    </h4>
+                    <p className="text-slate-300 text-xs leading-relaxed">{suggestion.topic}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </section>
         </div>
