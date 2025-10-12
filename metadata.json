@@ -1,0 +1,5 @@
+{
+  "name": "Generatore di Prompt C.R.A.F.T.",
+  "description": "Un'applicazione web intelligente che aiuta gli utenti a creare prompt altamente efficaci e strutturati per i modelli linguistici di grandi dimensioni utilizzando il framework C.R.A.F.T. (Contesto, Ruolo, Azione, Formato, Target). Trasforma idee semplici in prompt dettagliati e ottimizzati per sbloccare il pieno potenziale dell'IA.",
+  "requestFramePermissions": []
+}
