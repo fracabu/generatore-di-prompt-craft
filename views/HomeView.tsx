@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import type { CraftPrompt } from '../types';
 import { generateCraftPrompt } from '../services/aiService';
 import { examplePrompts } from '../data/examplePrompts';
-import { SparklesIcon, QuestionMarkIcon } from '../components/IconComponents';
+import { SparklesIcon, QuestionMarkIcon, MegaphoneIcon, BookOpenIcon, DocumentTextIcon, YouTubeIcon } from '../components/IconComponents';
 import TutorialModal from '../components/TutorialModal';
 import WarningModal from '../components/WarningModal';
 
@@ -22,8 +22,25 @@ const HomeView: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showTutorial, setShowTutorial] = useState(false);
-  const [currentSuggestions, setCurrentSuggestions] = useState(examplePrompts.slice(0, 4));
+  const [currentSuggestions, setCurrentSuggestions] = useState(examplePrompts.slice(0, 3));
   const [hasApiKey, setHasApiKey] = useState(false);
+
+  // Icon mapping per i suggerimenti
+  const getSuggestionIcon = (topic: string) => {
+    if (topic.toLowerCase().includes('social media') || topic.toLowerCase().includes('marketing') || topic.toLowerCase().includes('prodotto')) {
+      return MegaphoneIcon;
+    }
+    if (topic.toLowerCase().includes('blog') || topic.toLowerCase().includes('ricetta') || topic.toLowerCase().includes('cucina')) {
+      return BookOpenIcon;
+    }
+    if (topic.toLowerCase().includes('email') || topic.toLowerCase().includes('corso') || topic.toLowerCase().includes('documento')) {
+      return DocumentTextIcon;
+    }
+    if (topic.toLowerCase().includes('video') || topic.toLowerCase().includes('youtube')) {
+      return YouTubeIcon;
+    }
+    return SparklesIcon; // Default icon
+  };
 
   // Controlla se la chiave API è configurata
   useEffect(() => {
@@ -214,29 +231,40 @@ const HomeView: React.FC = () => {
 
 
           {/* Suggestion Cards Carousel */}
-          <section className="bg-slate-800/30 border border-slate-700 p-4 rounded-xl flex-1 min-h-0 overflow-hidden">
+          <section className="bg-slate-800/30 border border-slate-700 p-4 rounded-xl">
             <h3 className="text-base font-semibold text-emerald-400 mb-3">Idee per iniziare</h3>
-            <div className="relative h-full flex items-center justify-center">
-              <div className="flex gap-3 overflow-hidden">
-                {currentSuggestions.map((suggestion, index) => (
+            <div className="flex gap-3 overflow-hidden justify-center">
+              {currentSuggestions.map((suggestion, index) => {
+                const IconComponent = getSuggestionIcon(suggestion.topic);
+                return (
                   <div 
                     key={suggestion.id}
-                    className="flex-shrink-0 w-64 h-64 bg-slate-700/50 border border-slate-600 p-4 rounded-lg cursor-pointer hover:bg-slate-700/70 hover:border-slate-500 transition-all duration-300 transform hover:scale-105 flex flex-col justify-between"
+                    className="flex-shrink-0 w-64 h-64 bg-slate-700/50 border border-slate-600 p-4 rounded-lg cursor-pointer hover:bg-slate-700/70 hover:border-slate-500 transition-all duration-300 transform hover:scale-105 flex flex-col"
                     onClick={() => setTopic(suggestion.topic)}
                   >
-                    <div>
-                      <h4 className="font-semibold text-sky-400 mb-3 text-sm leading-tight">
-                        {suggestion.topic.length > 60 ? suggestion.topic.substring(0, 60) + '...' : suggestion.topic}
+                    {/* Icona in alto */}
+                    <div className="flex justify-center mb-3">
+                      <div className="bg-slate-600/50 p-3 rounded-full">
+                        <IconComponent className="w-8 h-8 text-sky-400" />
+                      </div>
+                    </div>
+                    
+                    {/* Titolo */}
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-sky-400 mb-2 text-sm leading-tight text-center">
+                        {suggestion.topic.length > 50 ? suggestion.topic.substring(0, 50) + '...' : suggestion.topic}
                       </h4>
                     </div>
-                    <div className="flex items-end justify-center">
+                    
+                    {/* Descrizione dal prompt C.R.A.F.T. */}
+                    <div className="mt-auto">
                       <p className="text-slate-300 text-xs text-center leading-relaxed">
-                        {suggestion.topic.length > 80 ? suggestion.topic.substring(0, 80) + '...' : suggestion.topic}
+                        {suggestion.prompt.azione.length > 100 ? suggestion.prompt.azione.substring(0, 100) + '...' : suggestion.prompt.azione}
                       </p>
                     </div>
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
           </section>
         </div>
