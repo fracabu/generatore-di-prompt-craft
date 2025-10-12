@@ -120,7 +120,9 @@ export async function generateCraftPrompt(topic: string, provider: 'gemini' | 'o
   }
 }
 
-export async function testGeneratedPrompt(prompt: string, provider: 'gemini' | 'openai' = 'gemini'): Promise<string> {
+export async function testGeneratedPrompt(prompt: string, provider: 'gemini' | 'openai' = 'gemini'): Promise<{ result: string; truncated: boolean }> {
+    const MAX_OUTPUT_TOKENS = 8192; // Aumentato da 2048 a 8192 per Gemini 2.5 Flash
+    
     try {
         if (provider === 'gemini') {
             const ai = getAIInstance('gemini') as GoogleGenAI;
@@ -129,20 +131,26 @@ export async function testGeneratedPrompt(prompt: string, provider: 'gemini' | '
                 contents: prompt,
                 config: {
                     temperature: 0.5,
-                    maxOutputTokens: 2048,
+                    maxOutputTokens: MAX_OUTPUT_TOKENS,
                     thinkingConfig: { thinkingBudget: 1024 },
                 }
             });
-            return response.text;
+            
+            const result = response.text;
+            const truncated = result.length > 0 && response.candidates?.[0]?.finishReason === 'MAX_TOKENS';
+            return { result, truncated };
         } else {
             const ai = getAIInstance('openai') as OpenAI;
             const response = await ai.chat.completions.create({
                 model: "gpt-4",
                 messages: [{ role: "user", content: prompt }],
                 temperature: 0.5,
-                max_tokens: 2048,
+                max_tokens: MAX_OUTPUT_TOKENS,
             });
-            return response.choices[0].message.content || "Nessuna risposta ricevuta";
+
+            const result = response.choices[0].message.content || "Nessuna risposta ricevuta";
+            const truncated = response.choices[0].finish_reason === 'length';
+            return { result, truncated };
         }
     } catch (error) {
         console.error(`Error testing prompt with ${provider}:`, error);

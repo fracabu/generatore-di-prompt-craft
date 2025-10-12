@@ -14,7 +14,6 @@ const ResultView: React.FC = () => {
     formato: '',
     target: '',
   });
-  const [savedPrompts, setSavedPrompts] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<'gemini' | 'openai'>('gemini');
@@ -29,23 +28,11 @@ const ResultView: React.FC = () => {
     if (storedPrompt) {
       try {
         setCraftPrompt(JSON.parse(storedPrompt));
-      } catch (e) {
-        console.error("Failed to parse stored prompt", e);
+      } catch (err) {
+        console.error('Error parsing stored prompt:', err);
       }
     }
-    if (storedProvider) {
-      setSelectedProvider(storedProvider);
-    }
-
-    // Carica i prompt salvati
-    try {
-      const storedPrompts = localStorage.getItem('savedCraftPrompts');
-      if (storedPrompts) {
-        setSavedPrompts(JSON.parse(storedPrompts));
-      }
-    } catch (e) {
-      console.error("Failed to load saved prompts", e);
-    }
+    if (storedProvider) setSelectedProvider(storedProvider);
   }, []);
 
   const handleCraftInputChange = (field: keyof CraftPrompt, value: string) => {
@@ -92,6 +79,33 @@ const ResultView: React.FC = () => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
+  };
+
+  const handleExportPrompt = () => {
+    let exportContent = `# Prompt C.R.A.F.T. - ${topic}\n\n`;
+    exportContent += `**Generato il:** ${new Date().toLocaleString('it-IT')}\n\n`;
+    exportContent += `---\n\n`;
+    exportContent += `## Contesto\n${craftPrompt.contexto}\n\n`;
+    exportContent += `## Ruolo\n${craftPrompt.ruolo}\n\n`;
+    exportContent += `## Azione\n${craftPrompt.azione}\n\n`;
+    exportContent += `## Formato\n${craftPrompt.formato}\n\n`;
+    exportContent += `## Target\n${craftPrompt.target}\n\n`;
+    exportContent += `---\n\n`;
+    exportContent += `## Prompt Completo\n${combinePrompt(craftPrompt)}`;
+
+    // Crea e scarica il file
+    const blob = new Blob([exportContent], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `prompt-craft-${topic.toLowerCase().replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    setError("Prompt esportato con successo!");
+    setTimeout(() => setError(null), 3000);
   };
 
   const handleBackToHome = () => {
@@ -168,7 +182,7 @@ const ResultView: React.FC = () => {
           
           <div className="flex flex-wrap gap-4">
             <button 
-              onClick={handleSavePrompt} 
+              onClick={handleExportPrompt} 
               className="pushable-3d relative border-none bg-transparent p-0 cursor-pointer outline-offset-4 transition-all duration-250 hover:brightness-110 group"
               style={{ transformStyle: 'preserve-3d' }}
               onMouseEnter={(e) => {
@@ -205,17 +219,17 @@ const ResultView: React.FC = () => {
               }}
             >
               <span 
-                className="absolute top-0 left-0 w-full h-full rounded-xl bg-indigo-900/25 transition-transform duration-300 ease-out"
+                className="absolute top-0 left-0 w-full h-full rounded-xl bg-green-900/25 transition-transform duration-300 ease-out"
                 style={{ transform: 'translateY(2px)' }}
               />
               <span 
-                className="absolute top-0 left-0 w-full h-full rounded-xl bg-gradient-to-l from-indigo-950 via-indigo-700 to-indigo-950"
+                className="absolute top-0 left-0 w-full h-full rounded-xl bg-gradient-to-l from-green-950 via-green-700 to-green-950"
               />
               <span 
-                className="relative flex items-center gap-2 px-4 py-2 rounded-xl text-white font-semibold bg-indigo-600 transition-transform duration-300 ease-out"
+                className="relative flex items-center gap-2 px-4 py-2 rounded-xl text-white font-semibold bg-green-600 transition-transform duration-300 ease-out"
                 style={{ transform: 'translateY(-2px)' }}
               >
-                <SaveIcon className="w-5 h-5" /> Salva Prompt
+                <DocumentDuplicateIcon className="w-5 h-5" /> Esporta MD
               </span>
             </button>
             <button 

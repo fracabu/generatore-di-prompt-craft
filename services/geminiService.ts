@@ -72,7 +72,7 @@ export async function testGeneratedPrompt(prompt: string): Promise<string> {
             contents: prompt,
             config: {
                 temperature: 0.5,
-                maxOutputTokens: 2048,
+                maxOutputTokens: 8192, // Aumentato da 2048 a 8192
                 thinkingConfig: { thinkingBudget: 1024 },
             }
         });

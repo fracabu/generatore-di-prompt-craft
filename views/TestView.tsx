@@ -8,6 +8,7 @@ const TestView: React.FC = () => {
   const navigate = useNavigate();
   const [testPrompt, setTestPrompt] = useState('');
   const [testResult, setTestResult] = useState('');
+  const [isTruncated, setIsTruncated] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -42,10 +43,12 @@ const TestView: React.FC = () => {
     
     setIsTesting(true);
     setTestResult('');
+    setIsTruncated(false);
     setError(null);
     try {
-      const result = await testGeneratedPrompt(prompt, testProvider);
-      setTestResult(result);
+      const response = await testGeneratedPrompt(prompt, testProvider);
+      setTestResult(response.result);
+      setIsTruncated(response.truncated);
     } catch (err: any) {
       setError(err.message || "Si è verificato un errore durante il test del prompt.");
     } finally {
@@ -131,10 +134,13 @@ const TestView: React.FC = () => {
           )}
         </section>
 
-        {/* Test Result */}
-        {(isTesting || testResult) && (
-          <section className="bg-slate-800/50 border border-slate-700 p-6 rounded-2xl shadow-lg">
-            <h3 className="text-lg font-semibold text-fuchsia-400 mb-4">Risultato del Test</h3>
+         {/* Test Result */}
+         {(isTesting || testResult) && (
+           <section className="bg-slate-800/50 border border-slate-700 p-6 rounded-2xl shadow-lg">
+             <div className="flex items-center justify-between mb-4">
+               <h3 className="text-lg font-semibold text-fuchsia-400">Risultato del Test</h3>
+               <span className="text-xs text-slate-400 bg-slate-700 px-2 py-1 rounded">Max Output: 8192 tokens</span>
+             </div>
             
             {isTesting && !testResult && (
               <div className="flex items-center text-slate-400">
@@ -143,13 +149,19 @@ const TestView: React.FC = () => {
               </div>
             )}
             
-            {testResult && (
-              <div className="prose prose-sm md:prose-base prose-invert max-w-none">
-                <div className="bg-slate-900/50 p-4 rounded-lg whitespace-pre-wrap text-slate-300">
-                  {testResult}
-                </div>
-              </div>
-            )}
+             {testResult && (
+               <div className="prose prose-sm md:prose-base prose-invert max-w-none">
+                 {isTruncated && (
+                   <div className="bg-amber-900/30 border border-amber-600 text-amber-200 p-3 rounded-lg mb-4 text-sm">
+                     <span className="font-semibold">⚠️ Attenzione:</span> Il risultato è stato troncato perché ha superato il limite massimo di caratteri. 
+                     Per testare prompt che generano risposte molto lunghe, ti consigliamo di usare direttamente modelli con maggiore capacità di output come Claude 3 Opus o Gemini Pro 1.5.
+                   </div>
+                 )}
+                 <div className="bg-slate-900/50 p-4 rounded-lg whitespace-pre-wrap text-slate-300">
+                   {testResult}
+                 </div>
+               </div>
+             )}
           </section>
         )}
 

@@ -66,11 +66,21 @@ const HomeView: React.FC = () => {
     };
   }, []);
 
-  // Pulisci i dati precedenti all'avvio
+  // Non svuotare il localStorage all'avvio per permettere navigazione tra view
+  
+  // Carica dati esistenti se presenti (per navigazione tra view)
   useEffect(() => {
-    localStorage.removeItem('currentTopic');
-    localStorage.removeItem('currentCraftPrompt');
-    localStorage.removeItem('testPrompt');
+    const storedTopic = localStorage.getItem('currentTopic');
+    const storedPrompt = localStorage.getItem('currentCraftPrompt');
+    
+    if (storedTopic) setTopic(storedTopic);
+    if (storedPrompt) {
+      try {
+        setCraftPrompt(JSON.parse(storedPrompt));
+      } catch (err) {
+        console.error('Error parsing stored prompt:', err);
+      }
+    }
   }, []);
 
   // Auto-resize textarea
@@ -163,7 +173,7 @@ const HomeView: React.FC = () => {
           <section className="bg-slate-800/50 border border-slate-700 p-4 rounded-xl shadow-lg flex-shrink-0">
             <label htmlFor="topic-input" className="block text-base font-semibold text-sky-400 mb-2">1. Inserisci il tuo argomento</label>
             <p className="text-slate-400 mb-3 text-xs">Descrivi cosa vuoi ottenere. Es: "un'email di marketing per un nuovo prodotto"</p>
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-3 items-start">
               <textarea
                 ref={textareaRef}
                 id="topic-input"
@@ -183,7 +193,7 @@ const HomeView: React.FC = () => {
               <button
                 onClick={handleGeneratePrompt}
                 disabled={isLoading}
-                className="pushable-3d relative border-none bg-transparent p-0 cursor-pointer outline-offset-4 transition-all duration-250 hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed group whitespace-nowrap"
+                className="pushable-3d relative border-none bg-transparent p-0 cursor-pointer outline-offset-4 transition-all duration-250 hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed group"
                 style={{ transformStyle: 'preserve-3d' }}
                 onMouseEnter={(e) => {
                   const shadow = e.currentTarget.querySelector('span:first-child');
@@ -226,7 +236,7 @@ const HomeView: React.FC = () => {
                   className="absolute top-0 left-0 w-full h-full rounded-xl bg-gradient-to-l from-sky-950 via-sky-700 to-sky-950"
                 />
                 <span 
-                  className="relative flex items-center justify-center px-4 py-2 rounded-xl text-white font-semibold bg-sky-600 transition-transform duration-300 ease-out text-sm"
+                  className="flex items-center justify-center min-h-[40px] px-4 py-2 rounded-xl text-white font-semibold bg-sky-600 transition-transform duration-300 ease-out text-sm"
                   style={{ transform: 'translateY(-2px)' }}
                 >
                   {isLoading ? (
