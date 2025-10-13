@@ -264,7 +264,7 @@ const HomeView: React.FC = () => {
           {/* Suggestion Cards Carousel */}
           <section className="bg-slate-800/30 border border-slate-700 p-2 sm:p-3 rounded-xl flex-shrink-0">
             <h3 className="text-sm sm:text-base font-semibold text-emerald-400 mb-2">Idee per iniziare</h3>
-            <div className="flex gap-1.5 sm:gap-2 md:gap-3 overflow-x-auto scrollbar-hide py-2">
+            <div className="flex gap-1.5 sm:gap-2 md:gap-3 overflow-x-auto scrollbar-hide py-2 justify-center sm:justify-start">
               {currentSuggestions.map((suggestion, index) => {
                 const IconComponent = getSuggestionIcon(suggestion.topic);
                 return (
