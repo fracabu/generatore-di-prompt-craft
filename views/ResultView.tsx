@@ -247,8 +247,8 @@ const ResultView: React.FC = () => {
                 style={{ transform: 'translateY(-2px)' }}
               >
                 <DocumentDuplicateIcon className="w-4 h-4 sm:w-5 sm:h-5" /> 
-                <span className="hidden xs:inline">Esporta MD</span>
-                <span className="xs:hidden">📄</span>
+                <span className="hidden sm:inline">Esporta MD</span>
+                <span className="sm:hidden">📄</span>
               </span>
             </button>
             <button 
@@ -289,19 +289,19 @@ const ResultView: React.FC = () => {
               }}
             >
               <span 
-                className="absolute top-0 left-0 w-full h-full rounded-xl bg-green-900/25 transition-transform duration-300 ease-out"
+                className="absolute top-0 left-0 w-full h-full rounded-xl bg-blue-900/25 transition-transform duration-300 ease-out"
                 style={{ transform: 'translateY(2px)' }}
               />
               <span 
-                className="absolute top-0 left-0 w-full h-full rounded-xl bg-gradient-to-l from-green-950 via-green-700 to-green-950"
+                className="absolute top-0 left-0 w-full h-full rounded-xl bg-gradient-to-l from-blue-950 via-blue-700 to-blue-950"
               />
               <span 
-                className="relative flex items-center justify-center gap-2 px-3 py-2 sm:px-4 sm:py-2 rounded-xl text-white font-semibold bg-green-600 transition-transform duration-300 ease-out text-sm"
+                className="relative flex items-center justify-center gap-2 px-3 py-2 sm:px-4 sm:py-2 rounded-xl text-white font-semibold bg-blue-600 transition-transform duration-300 ease-out text-sm"
                 style={{ transform: 'translateY(-2px)' }}
               >
                 <TestTubeIcon className="w-4 h-4 sm:w-5 sm:h-5" /> 
-                <span className="hidden xs:inline">Testa Prompt</span>
-                <span className="xs:hidden">🧪</span>
+                <span className="hidden sm:inline">Testa Prompt</span>
+                <span className="sm:hidden">🧪</span>
               </span>
             </button>
             <button 
@@ -353,8 +353,8 @@ const ResultView: React.FC = () => {
                 style={{ transform: 'translateY(-2px)' }}
               >
                 {copied ? <CheckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" /> : <DocumentDuplicateIcon className="w-4 h-4 sm:w-5 sm:h-5" />}
-                <span className="hidden xs:inline">{copied ? 'Copiato!' : 'Copia Prompt'}</span>
-                <span className="xs:inline">{copied ? '✓' : '📋'}</span>
+                <span className="hidden sm:inline">{copied ? 'Copiato!' : 'Copia Prompt'}</span>
+                <span className="sm:hidden">{copied ? '✓' : '📋'}</span>
               </span>
             </button>
           </div>
