@@ -63,14 +63,15 @@ const ApiSettings: React.FC = () => {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center justify-center px-2 py-1.5 sm:px-3 sm:py-2 rounded-md text-xs sm:text-sm font-medium transition-colors ${
+        className={`flex items-center space-x-1 sm:space-x-2 px-2 py-1.5 sm:px-3 sm:py-2 rounded-md text-xs sm:text-sm font-medium transition-colors ${
           hasAnyKey 
             ? 'bg-green-600/20 text-green-400 hover:bg-green-600/30' 
             : 'bg-red-600/20 text-red-400 hover:bg-red-600/30'
         }`}
         aria-label="Impostazioni API"
       >
-        <SettingsIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+        <SettingsIcon className="w-4 h-4 sm:w-4 sm:h-4" />
+        <span className="hidden sm:inline">API</span>
       </button>
 
       {isOpen && (
