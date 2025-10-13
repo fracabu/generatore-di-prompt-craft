@@ -248,7 +248,6 @@ const ResultView: React.FC = () => {
               >
                 <DocumentDuplicateIcon className="w-4 h-4 sm:w-5 sm:h-5" /> 
                 <span className="hidden sm:inline">Esporta MD</span>
-                <span className="sm:hidden">📄</span>
               </span>
             </button>
             <button 
@@ -301,7 +300,6 @@ const ResultView: React.FC = () => {
               >
                 <TestTubeIcon className="w-4 h-4 sm:w-5 sm:h-5" /> 
                 <span className="hidden sm:inline">Testa Prompt</span>
-                <span className="sm:hidden">🧪</span>
               </span>
             </button>
             <button 
@@ -354,7 +352,6 @@ const ResultView: React.FC = () => {
               >
                 {copied ? <CheckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" /> : <DocumentDuplicateIcon className="w-4 h-4 sm:w-5 sm:h-5" />}
                 <span className="hidden sm:inline">{copied ? 'Copiato!' : 'Copia Prompt'}</span>
-                <span className="sm:hidden">{copied ? '✓' : '📋'}</span>
               </span>
             </button>
           </div>
