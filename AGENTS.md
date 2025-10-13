@@ -6,9 +6,8 @@
 - `npm run preview` - Preview production build
 
 ## Testing & Linting
-- No test framework configured - add vitest/jest for testing
-- Use browser testing for component validation
 - TypeScript compilation: `npx tsc --noEmit` for type checking
+- No test framework configured - add vitest/jest for testing
 - No linting configured - consider adding ESLint for code quality
 
 ## Code Style Guidelines

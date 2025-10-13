@@ -184,7 +184,7 @@ const HomeView: React.FC = () => {
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
                 placeholder="Es: Una sceneggiatura per un video YouTube sui viaggi spaziali"
-                className="flex-grow bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all text-sm resize-none overflow-hidden scrollbar-hide"
+                className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all text-sm resize-none overflow-hidden scrollbar-hide"
                 style={{ minHeight: '40px', maxHeight: '128px' }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
@@ -197,7 +197,7 @@ const HomeView: React.FC = () => {
               <button
                 onClick={handleGeneratePrompt}
                 disabled={isLoading}
-                className="pushable-3d relative border-none bg-transparent p-0 cursor-pointer outline-offset-4 transition-all duration-250 hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed group w-full sm:w-auto"
+                className="pushable-3d relative border-none bg-transparent p-0 cursor-pointer outline-offset-4 transition-all duration-250 hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed group w-fit"
                 style={{ transformStyle: 'preserve-3d' }}
                 onMouseEnter={(e) => {
                   const shadow = e.currentTarget.querySelector('span:first-child');
@@ -264,7 +264,7 @@ const HomeView: React.FC = () => {
           {/* Suggestion Cards Carousel */}
           <section className="bg-slate-800/30 border border-slate-700 p-2 sm:p-3 rounded-xl flex-shrink-0">
             <h3 className="text-sm sm:text-base font-semibold text-emerald-400 mb-2">Idee per iniziare</h3>
-            <div className="flex gap-1.5 sm:gap-2 md:gap-3 overflow-x-auto scrollbar-hide py-2 justify-center sm:justify-start">
+            <div className="flex gap-1.5 sm:gap-2 md:gap-3 overflow-x-auto scrollbar-hide py-2 justify-center">
               {currentSuggestions.map((suggestion, index) => {
                 const IconComponent = getSuggestionIcon(suggestion.topic);
                 return (
