@@ -1,13 +1,31 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { GlobeAltIcon, Bars3Icon, XMarkIcon } from './IconComponents';
 import ApiSettings from './ApiSettings';
 
 const Header: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const isActive = (path: string) => location.pathname === path;
+
+  // Controlla lo stato di generazione
+  useEffect(() => {
+    const checkGenerationStatus = () => {
+      const inProgress = localStorage.getItem('generationInProgress') === 'true';
+      setIsGenerating(inProgress);
+    };
+
+    // Controlla subito
+    checkGenerationStatus();
+
+    // Controlla periodicamente
+    const interval = setInterval(checkGenerationStatus, 500);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -19,6 +37,23 @@ const Header: React.FC = () => {
 
   return (
     <header className="bg-slate-800 border-b border-slate-700 sticky top-0 z-50">
+      {/* Banner generazione in corso */}
+      {isGenerating && (
+        <div className="bg-gradient-to-r from-sky-600 to-purple-600 px-3 sm:px-4 lg:px-6 py-2 flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <div className="w-4 h-4 border-2 border-t-white border-slate-300 rounded-full animate-spin"></div>
+            <span className="text-white text-xs sm:text-sm font-medium">
+              Generazione in corso...
+            </span>
+          </div>
+          <button
+            onClick={() => navigate('/')}
+            className="text-white text-xs sm:text-sm underline hover:no-underline"
+          >
+            Torna alla Home
+          </button>
+        </div>
+      )}
       <div className="px-3 sm:px-4 lg:px-6">
         <div className="flex items-center justify-between h-14 sm:h-16">
           <Link to="/" className="flex items-center space-x-2 group" onClick={closeMenu}>

@@ -89,6 +89,7 @@ const HomeView: React.FC = () => {
     const storedPrompt = localStorage.getItem('currentCraftPrompt');
     const storedModel = localStorage.getItem('openrouter_model');
     const storedProvider = localStorage.getItem('selectedProvider') as 'gemini' | 'openai' | 'openrouter';
+    const generationInProgress = localStorage.getItem('generationInProgress') === 'true';
 
     if (storedTopic) setTopic(storedTopic);
     if (storedPrompt) {
@@ -104,7 +105,33 @@ const HomeView: React.FC = () => {
     if (storedProvider) {
       setProvider(storedProvider);
     }
-  }, []);
+
+    // Ripristina lo stato di loading se c'è una generazione in corso
+    if (generationInProgress) {
+      setIsLoading(true);
+    }
+
+    // Controlla periodicamente se la generazione è finita
+    const checkInterval = setInterval(() => {
+      const stillInProgress = localStorage.getItem('generationInProgress') === 'true';
+      const hasNewPrompt = localStorage.getItem('currentCraftPrompt');
+
+      if (!stillInProgress && hasNewPrompt && isLoading) {
+        // La generazione è finita mentre eravamo su un'altra pagina
+        setIsLoading(false);
+        try {
+          const parsed = JSON.parse(hasNewPrompt);
+          setCraftPrompt(parsed);
+          // Naviga automaticamente alla pagina dei risultati
+          navigate('/result');
+        } catch (err) {
+          console.error('Error parsing completed prompt:', err);
+        }
+      }
+    }, 500); // Controlla ogni 500ms
+
+    return () => clearInterval(checkInterval);
+  }, [isLoading, navigate]);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -148,27 +175,40 @@ const HomeView: React.FC = () => {
       setError("Per favore, inserisci un argomento per iniziare.");
       return;
     }
-    setIsLoading(true);
-    setError(null);
-    try {
-      // Salva il modello OpenRouter se selezionato
-      if (provider === 'openrouter') {
-        localStorage.setItem('openrouter_model', openrouterModel);
-      }
 
+    // Salva lo stato di generazione in corso
+    setIsLoading(true);
+    localStorage.setItem('generationInProgress', 'true');
+    localStorage.setItem('currentTopic', topic);
+    localStorage.setItem('selectedProvider', provider);
+    setError(null);
+
+    // Salva il modello OpenRouter se selezionato
+    if (provider === 'openrouter') {
+      localStorage.setItem('openrouter_model', openrouterModel);
+    }
+
+    try {
+      // La chiamata continua anche se l'utente naviga via
       const generatedPrompt = await generateCraftPrompt(topic, provider);
       console.log('Generated prompt received in HomeView:', generatedPrompt); // Debug log
-      setCraftPrompt(generatedPrompt);
-      // Salva i dati nello stato globale o localStorage e naviga
-      localStorage.setItem('currentTopic', topic);
+
+      // Salva i risultati
       const savedJson = JSON.stringify(generatedPrompt);
       console.log('Saving to localStorage:', savedJson); // Debug log
       localStorage.setItem('currentCraftPrompt', savedJson);
-      localStorage.setItem('selectedProvider', provider);
+      localStorage.removeItem('generationInProgress');
+
+      // Aggiorna lo stato locale se il componente è ancora montato
+      setCraftPrompt(generatedPrompt);
+      setIsLoading(false);
+
+      // Naviga automaticamente alla pagina dei risultati
       navigate('/result');
     } catch (err: any) {
+      console.error('Generation error:', err);
+      localStorage.removeItem('generationInProgress');
       setError(err.message || "Si è verificato un errore sconosciuto.");
-    } finally {
       setIsLoading(false);
     }
   };
@@ -205,9 +245,9 @@ const HomeView: React.FC = () => {
         </header>
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col gap-3 min-h-0">
+        <div className={`flex-1 flex flex-col lg:flex-row gap-3 sm:gap-4 min-h-0 max-w-7xl mx-auto w-full ${isLoading ? 'justify-center items-center' : ''}`}>
           {/* Input Section */}
-          <section className="bg-slate-800/50 border border-slate-700 p-3 sm:p-4 rounded-xl shadow-lg flex-shrink-0">
+          <section className={`bg-slate-800/50 border border-slate-700 p-3 sm:p-4 rounded-xl shadow-lg transition-all duration-300 ${isLoading ? 'max-w-2xl w-full' : 'lg:w-1/2 flex-shrink-0'}`}>
             {/* Provider Selection */}
             <div className="mb-3 sm:mb-4">
               <label className="block text-sm sm:text-base font-semibold text-sky-400 mb-2">Seleziona AI Provider</label>
@@ -309,13 +349,16 @@ const HomeView: React.FC = () => {
                       <option value="mistralai/pixtral-large">Pixtral Large (Multimodale)</option>
                     </optgroup>
                     <optgroup label="Qwen">
-                      <option value="qwen/qwen-2.5-72b-instruct">Qwen 2.5 72B Instruct</option>
-                      <option value="qwen/qwq-32b-preview">QwQ 32B Preview (Reasoning)</option>
-                      <option value="qwen/qwen3-vl-8b-instruct">Qwen3 VL 8B Instruct</option>
+                      <option value="qwen/qwen3-32b">Qwen3 32B</option>
+                      <option value="qwen/qwen3-235b-a22b-2507">Qwen3 235B A22B</option>
+                      <option value="qwen/qwen3-235b-a22b:free">Qwen3 235B A22B (Free)</option>
+                      <option value="qwen/qwen3-235b-a22b-thinking-2507">Qwen3 235B A22B Thinking</option>
+                      <option value="qwen/qwen3-vl-235b-a22b-instruct">Qwen3 VL 235B A22B Instruct</option>
                     </optgroup>
                     <optgroup label="DeepSeek">
                       <option value="deepseek/deepseek-chat">DeepSeek Chat</option>
                       <option value="deepseek/deepseek-r1">DeepSeek R1 (Reasoning)</option>
+                      <option value="deepseek/deepseek-r1-0528-qwen3-8b">DeepSeek R1 Qwen3 8B</option>
                     </optgroup>
                     <optgroup label="Zhipu AI (GLM)">
                       <option value="z-ai/glm-4.6">GLM 4.6</option>
@@ -418,18 +461,17 @@ const HomeView: React.FC = () => {
             </div>
           </section>
 
-
-
-          {/* Suggestion Cards Carousel */}
-          <section className="bg-slate-800/30 border border-slate-700 p-2 sm:p-3 rounded-xl flex-shrink-0">
+          {/* Suggestion Cards Carousel - Nascosta durante la generazione */}
+          {!isLoading && (
+          <section className="bg-slate-800/30 border border-slate-700 p-2 sm:p-3 rounded-xl lg:w-1/2 flex-shrink-0 overflow-hidden flex flex-col">
             <h3 className="text-sm sm:text-base font-semibold text-emerald-400 mb-2">Idee per iniziare</h3>
-            <div className="flex gap-1.5 sm:gap-2 md:gap-3 overflow-x-auto scrollbar-hide py-2 justify-center">
+            <div className="flex lg:flex-col gap-1.5 sm:gap-2 md:gap-3 overflow-x-auto lg:overflow-y-auto scrollbar-hide py-2 lg:justify-start justify-center flex-1">
               {currentSuggestions.map((suggestion, index) => {
                 const IconComponent = getSuggestionIcon(suggestion.topic);
                 return (
-                  <div 
+                  <div
                     key={suggestion.id}
-                    className="flex-none w-56 sm:w-64 md:w-72 lg:w-80 bg-slate-700/50 border border-slate-600 p-2 sm:p-3 md:p-4 rounded-lg cursor-pointer hover:bg-slate-700/70 hover:border-slate-500 transition-all duration-300 transform hover:scale-105 flex flex-col h-36 sm:h-48 md:h-56 lg:h-64"
+                    className="flex-none w-56 sm:w-64 md:w-72 lg:w-full bg-slate-700/50 border border-slate-600 p-2 sm:p-3 md:p-4 rounded-lg cursor-pointer hover:bg-slate-700/70 hover:border-slate-500 transition-all duration-300 transform hover:scale-105 flex flex-col h-36 sm:h-48 md:h-56 lg:h-auto lg:min-h-[140px]"
                     onClick={() => setTopic(suggestion.prompt.azione)}
                   >
                     {/* Icona in alto */}
@@ -456,6 +498,7 @@ const HomeView: React.FC = () => {
               })}
             </div>
           </section>
+          )}
         </div>
       </div>
     </div>

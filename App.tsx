@@ -8,16 +8,22 @@ import TestView from './views/TestView';
 
 function App() {
   useEffect(() => {
-    // Pulisci i dati delle richieste all'avvio, ma mantieni le chiavi API e i prompt salvati
+    // Pulisci i dati delle richieste all'avvio, ma mantieni le chiavi API, i prompt salvati e lo stato di generazione
     const keysToKeep = [
       'gemini_api_key',
       'openai_api_key',
-      'savedCraftPrompts'
+      'openrouter_api_key',
+      'openrouter_model',
+      'savedCraftPrompts',
+      'selectedProvider',
+      'generationInProgress',
+      'currentTopic',
+      'currentCraftPrompt'
     ];
-    
+
     // Ottieni tutte le chiavi dal localStorage
     const allKeys = Object.keys(localStorage);
-    
+
     // Rimuovi tutte le chiavi tranne quelle da mantenere
     allKeys.forEach(key => {
       if (!keysToKeep.includes(key)) {

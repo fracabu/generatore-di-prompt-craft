@@ -249,6 +249,12 @@ Do not use abbreviations like C, R, A, F, T. Do not use arrays. Do not use capit
       const parsedJson = JSON.parse(jsonString);
       console.log('Parsed JSON:', parsedJson); // Debug log
 
+      // Validazione: controlla se è un oggetto valido (non array, non null, non primitivo)
+      if (!parsedJson || typeof parsedJson !== 'object' || Array.isArray(parsedJson)) {
+        console.error('Invalid JSON structure from OpenRouter:', parsedJson);
+        throw new Error(`Il modello ${selectedModel} ha restituito una risposta non valida. Prova con un altro modello (consigliati: GPT-4o, Claude Sonnet 4.5, Gemini Pro).`);
+      }
+
       // Parsing robusto: supporta varie convenzioni di naming che i diversi modelli possono usare
       const craftPrompt: CraftPrompt = {
         contexto: parsedJson.contexto || parsedJson.Contexto || parsedJson.C || parsedJson.contesto || parsedJson.context || '',
@@ -264,6 +270,13 @@ Do not use abbreviations like C, R, A, F, T. Do not use arrays. Do not use capit
         formato: parsedJson.formato || parsedJson.Formato || parsedJson.F || parsedJson.format || '',
         target: parsedJson.target || parsedJson.Target || parsedJson.T || parsedJson.audience || ''
       };
+
+      // Validazione finale: controlla se almeno 3 campi sono compilati
+      const filledFields = Object.values(craftPrompt).filter(v => v && v.trim().length > 0).length;
+      if (filledFields < 3) {
+        console.error('Insufficient fields filled:', craftPrompt);
+        throw new Error(`Il modello ${selectedModel} non ha generato un prompt completo. Prova con un altro modello (consigliati: GPT-4o, Claude Sonnet 4.5, Gemini Pro).`);
+      }
 
       console.log('Craft Prompt object:', craftPrompt); // Debug log
       return craftPrompt;
