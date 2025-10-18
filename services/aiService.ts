@@ -155,8 +155,10 @@ Your task is to use this framework to transform a user's simple topic or questio
   try {
     if (provider === 'gemini') {
       const ai = getAIInstance('gemini') as GoogleGenAI;
+      const selectedModel = localStorage.getItem('gemini_model') || 'gemini-2.0-flash-exp';
+
       const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: selectedModel,
         contents: userPrompt,
         config: {
           systemInstruction,
@@ -175,8 +177,10 @@ Your task is to use this framework to transform a user's simple topic or questio
       // Aggiungi esplicitamente al messaggio di sistema la richiesta di JSON per maggiore compatibilità
       const enhancedSystemInstruction = systemInstruction + "\n\nIMPORTANT: You MUST respond with ONLY valid JSON in the exact schema specified above. Do not include any markdown, explanations, or text outside the JSON object.";
 
+      const selectedModel = localStorage.getItem('openai_model') || 'gpt-5-2025-08-07';
+
       const response = await ai.chat.completions.create({
-        model: "gpt-4o",
+        model: selectedModel,
         messages: [
           { role: "system", content: enhancedSystemInstruction },
           { role: "user", content: userPrompt }
@@ -294,8 +298,10 @@ export async function testGeneratedPrompt(prompt: string, provider: 'gemini' | '
     try {
         if (provider === 'gemini') {
             const ai = getAIInstance('gemini') as GoogleGenAI;
+            const selectedModel = localStorage.getItem('gemini_model') || 'gemini-2.0-flash-exp';
+
             const response = await ai.models.generateContent({
-                model: "gemini-2.5-flash",
+                model: selectedModel,
                 contents: prompt,
                 config: {
                     temperature: 0.8,
@@ -303,14 +309,16 @@ export async function testGeneratedPrompt(prompt: string, provider: 'gemini' | '
                     thinkingConfig: { thinkingBudget: 1024 },
                 }
             });
-            
+
             const result = response.text;
             const truncated = result.length > 0 && response.candidates?.[0]?.finishReason === 'MAX_TOKENS';
             return { result, truncated };
         } else if (provider === 'openai') {
             const ai = getAIInstance('openai') as OpenAI;
+            const selectedModel = localStorage.getItem('openai_model') || 'gpt-5-2025-08-07';
+
             const response = await ai.chat.completions.create({
-                model: "gpt-4o",
+                model: selectedModel,
                 messages: [{ role: "user", content: prompt }],
                 temperature: 0.8,
                 max_tokens: MAX_OUTPUT_TOKENS,

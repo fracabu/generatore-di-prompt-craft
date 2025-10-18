@@ -29,6 +29,8 @@ const HomeView: React.FC = () => {
     return savedProvider || 'gemini';
   });
   const [openrouterModel, setOpenrouterModel] = useState<string>('openai/gpt-4o');
+  const [openaiModel, setOpenaiModel] = useState<string>('gpt-5-2025-08-07');
+  const [geminiModel, setGeminiModel] = useState<string>('gemini-2.0-flash-exp');
   const [hasApiKey, setHasApiKey] = useState(false);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
@@ -87,7 +89,9 @@ const HomeView: React.FC = () => {
   useEffect(() => {
     const storedTopic = localStorage.getItem('currentTopic');
     const storedPrompt = localStorage.getItem('currentCraftPrompt');
-    const storedModel = localStorage.getItem('openrouter_model');
+    const storedOpenRouterModel = localStorage.getItem('openrouter_model');
+    const storedOpenAIModel = localStorage.getItem('openai_model');
+    const storedGeminiModel = localStorage.getItem('gemini_model');
     const storedProvider = localStorage.getItem('selectedProvider') as 'gemini' | 'openai' | 'openrouter';
     const generationInProgress = localStorage.getItem('generationInProgress') === 'true';
 
@@ -99,8 +103,14 @@ const HomeView: React.FC = () => {
         console.error('Error parsing stored prompt:', err);
       }
     }
-    if (storedModel) {
-      setOpenrouterModel(storedModel);
+    if (storedOpenRouterModel) {
+      setOpenrouterModel(storedOpenRouterModel);
+    }
+    if (storedOpenAIModel) {
+      setOpenaiModel(storedOpenAIModel);
+    }
+    if (storedGeminiModel) {
+      setGeminiModel(storedGeminiModel);
     }
     if (storedProvider) {
       setProvider(storedProvider);
@@ -183,9 +193,13 @@ const HomeView: React.FC = () => {
     localStorage.setItem('selectedProvider', provider);
     setError(null);
 
-    // Salva il modello OpenRouter se selezionato
+    // Salva il modello selezionato in base al provider
     if (provider === 'openrouter') {
       localStorage.setItem('openrouter_model', openrouterModel);
+    } else if (provider === 'openai') {
+      localStorage.setItem('openai_model', openaiModel);
+    } else if (provider === 'gemini') {
+      localStorage.setItem('gemini_model', geminiModel);
     }
 
     try {
@@ -304,6 +318,54 @@ const HomeView: React.FC = () => {
                 </p>
               )}
 
+              {/* OpenAI Model Selection */}
+              {provider === 'openai' && (
+                <div className="mt-3 pt-3 border-t border-slate-600">
+                  <label htmlFor="openai-model-select" className="block text-xs font-medium text-slate-300 mb-2">
+                    Seleziona Modello OpenAI
+                  </label>
+                  <select
+                    id="openai-model-select"
+                    value={openaiModel}
+                    onChange={(e) => setOpenaiModel(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm"
+                  >
+                    <option value="gpt-5-2025-08-07">GPT-5 (2025-08-07)</option>
+                    <option value="gpt-5-pro-2025-10-06">GPT-5 Pro (2025-10-06)</option>
+                    <option value="gpt-5-mini-2025-08-07">GPT-5 Mini (2025-08-07)</option>
+                    <option value="gpt-5-nano-2025-08-07">GPT-5 Nano (2025-08-07)</option>
+                    <option value="gpt-4.1-2025-04-14">GPT-4.1 (2025-04-14)</option>
+                  </select>
+                  <p className="text-slate-400 text-xs mt-1">
+                    Documentazione modelli: <a href="https://platform.openai.com/docs/models" target="_blank" rel="noopener noreferrer" className="text-sky-400 hover:text-sky-300 underline">platform.openai.com/docs/models</a>
+                  </p>
+                </div>
+              )}
+
+              {/* Gemini Model Selection */}
+              {provider === 'gemini' && (
+                <div className="mt-3 pt-3 border-t border-slate-600">
+                  <label htmlFor="gemini-model-select" className="block text-xs font-medium text-slate-300 mb-2">
+                    Seleziona Modello Gemini
+                  </label>
+                  <select
+                    id="gemini-model-select"
+                    value={geminiModel}
+                    onChange={(e) => setGeminiModel(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                  >
+                    <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash (Experimental)</option>
+                    <option value="gemini-2.0-flash-thinking-exp-01-21">Gemini 2.0 Flash Thinking</option>
+                    <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+                    <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                    <option value="gemini-1.0-pro">Gemini 1.0 Pro</option>
+                  </select>
+                  <p className="text-slate-400 text-xs mt-1">
+                    Documentazione modelli: <a href="https://ai.google.dev/gemini-api/docs/models/gemini" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 underline">ai.google.dev/gemini-api/docs/models</a>
+                  </p>
+                </div>
+              )}
+
               {/* OpenRouter Model Selection */}
               {provider === 'openrouter' && (
                 <div className="mt-3 pt-3 border-t border-slate-600">
@@ -346,6 +408,9 @@ const HomeView: React.FC = () => {
                     </optgroup>
                     <optgroup label="Meta Llama">
                       <option value="meta-llama/llama-3.3-70b-instruct">Llama 3.3 70B Instruct</option>
+                      <option value="meta-llama/llama-3.1-405b-instruct">Llama 3.1 405B Instruct</option>
+                      <option value="meta-llama/llama-3.1-70b-instruct">Llama 3.1 70B Instruct</option>
+                      <option value="meta-llama/llama-3.1-8b-instruct">Llama 3.1 8B Instruct</option>
                     </optgroup>
                     <optgroup label="Mistral">
                       <option value="mistralai/mistral-medium-3.1">Mistral Medium 3.1</option>

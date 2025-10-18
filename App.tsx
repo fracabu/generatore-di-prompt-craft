@@ -14,6 +14,8 @@ function App() {
       'openai_api_key',
       'openrouter_api_key',
       'openrouter_model',
+      'openai_model',
+      'gemini_model',
       'savedCraftPrompts',
       'selectedProvider',
       'generationInProgress',
