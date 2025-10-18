@@ -317,20 +317,27 @@ const HomeView: React.FC = () => {
                     className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
                   >
                     <optgroup label="OpenAI">
-                      <option value="openai/gpt-5">GPT-5 (Più recente)</option>
+                      <option value="openai/gpt-5">GPT-5</option>
+                      <option value="openai/gpt-5-pro">GPT-5 Pro</option>
                       <option value="openai/gpt-5-mini">GPT-5 Mini</option>
+                      <option value="openai/gpt-5-nano">GPT-5 Nano</option>
+                      <option value="openai/gpt-4.1">GPT-4.1</option>
+                      <option value="openai/gpt-4.1-mini">GPT-4.1 Mini</option>
+                      <option value="openai/gpt-4.1-nano">GPT-4.1 Nano</option>
                       <option value="openai/gpt-4o">GPT-4o</option>
+                      <option value="openai/chatgpt-4o-latest">ChatGPT-4o Latest</option>
                       <option value="openai/gpt-4o-mini">GPT-4o Mini</option>
-                      <option value="openai/gpt-4-turbo">GPT-4 Turbo</option>
-                      <option value="openai/gpt-4">GPT-4</option>
+                      <option value="openai/gpt-4o-mini-2024-07-18">GPT-4o Mini (2024-07-18)</option>
                       <option value="openai/gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                      <option value="openai/gpt-oss-20b:free">GPT OSS 20B (Free)</option>
                     </optgroup>
                     <optgroup label="Anthropic">
-                      <option value="anthropic/claude-sonnet-4.5">Claude Sonnet 4.5 (Più recente)</option>
+                      <option value="anthropic/claude-sonnet-4.5">Claude Sonnet 4.5</option>
+                      <option value="anthropic/claude-haiku-4.5">Claude Haiku 4.5</option>
+                      <option value="anthropic/claude-opus-4.1">Claude Opus 4.1</option>
+                      <option value="anthropic/claude-3.7-sonnet:thinking">Claude 3.7 Sonnet Thinking</option>
                       <option value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet</option>
-                      <option value="anthropic/claude-3-opus">Claude 3 Opus</option>
-                      <option value="anthropic/claude-3-sonnet">Claude 3 Sonnet</option>
-                      <option value="anthropic/claude-3-haiku">Claude 3 Haiku</option>
+                      <option value="anthropic/claude-3.5-haiku">Claude 3.5 Haiku</option>
                     </optgroup>
                     <optgroup label="Google">
                       <option value="google/gemini-pro-1.5">Gemini Pro 1.5</option>
@@ -339,14 +346,17 @@ const HomeView: React.FC = () => {
                     </optgroup>
                     <optgroup label="Meta Llama">
                       <option value="meta-llama/llama-3.3-70b-instruct">Llama 3.3 70B Instruct</option>
-                      <option value="meta-llama/llama-3.1-405b-instruct">Llama 3.1 405B Instruct</option>
-                      <option value="meta-llama/llama-3.1-70b-instruct">Llama 3.1 70B Instruct</option>
-                      <option value="meta-llama/llama-3.1-8b-instruct">Llama 3.1 8B Instruct</option>
                     </optgroup>
                     <optgroup label="Mistral">
-                      <option value="mistralai/mistral-large">Mistral Large</option>
-                      <option value="mistralai/mistral-small">Mistral Small</option>
-                      <option value="mistralai/pixtral-large">Pixtral Large (Multimodale)</option>
+                      <option value="mistralai/mistral-medium-3.1">Mistral Medium 3.1</option>
+                      <option value="mistralai/mistral-small-3.2-24b-instruct">Mistral Small 3.2 24B Instruct</option>
+                      <option value="mistralai/mistral-small-3.2-24b-instruct:free">Mistral Small 3.2 24B Instruct (Free)</option>
+                      <option value="mistralai/mistral-small-24b-instruct-2501">Mistral Small 24B Instruct 2501</option>
+                      <option value="mistralai/mistral-tiny">Mistral Tiny</option>
+                      <option value="mistralai/mistral-nemo">Mistral Nemo</option>
+                      <option value="mistralai/mistral-nemo:free">Mistral Nemo (Free)</option>
+                      <option value="mistralai/mistral-7b-instruct">Mistral 7B Instruct</option>
+                      <option value="mistralai/mixtral-8x7b-instruct">Mixtral 8x7B Instruct</option>
                     </optgroup>
                     <optgroup label="Qwen">
                       <option value="qwen/qwen3-32b">Qwen3 32B</option>
