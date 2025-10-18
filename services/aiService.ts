@@ -3,19 +3,37 @@ import OpenAI from 'openai';
 import type { CraftPrompt } from '../types';
 
 // Funzione per ottenere l'istanza AI in base al provider selezionato
-const getAIInstance = (provider: 'gemini' | 'openai') => {
+const getAIInstance = (provider: 'gemini' | 'openai' | 'openrouter') => {
   if (provider === 'gemini') {
     const apiKey = localStorage.getItem('gemini_api_key');
     if (!apiKey) {
       throw new Error("Chiave API Gemini non configurata. Vai nelle impostazioni e inserisci la tua chiave API Gemini.");
     }
     return new GoogleGenAI({ apiKey });
-  } else {
+  } else if (provider === 'openai') {
     const apiKey = localStorage.getItem('openai_api_key');
     if (!apiKey) {
       throw new Error("Chiave API OpenAI non configurata. Vai nelle impostazioni e inserisci la tua chiave API OpenAI.");
     }
-    return new OpenAI({ apiKey });
+    return new OpenAI({
+      apiKey,
+      dangerouslyAllowBrowser: true
+    });
+  } else {
+    // OpenRouter
+    const apiKey = localStorage.getItem('openrouter_api_key');
+    if (!apiKey) {
+      throw new Error("Chiave API OpenRouter non configurata. Vai nelle impostazioni e inserisci la tua chiave API OpenRouter.");
+    }
+    return new OpenAI({
+      apiKey,
+      baseURL: "https://openrouter.ai/api/v1",
+      dangerouslyAllowBrowser: true,
+      defaultHeaders: {
+        "HTTP-Referer": window.location.origin,
+        "X-Title": "Generatore C.R.A.F.T."
+      }
+    });
   }
 };
 
@@ -73,7 +91,7 @@ const openaiResponseSchema = {
   required: ["contexto", "ruolo", "azione", "formato", "target"],
 };
 
-export async function generateCraftPrompt(topic: string, provider: 'gemini' | 'openai' = 'gemini'): Promise<CraftPrompt> {
+export async function generateCraftPrompt(topic: string, provider: 'gemini' | 'openai' | 'openrouter' = 'gemini'): Promise<CraftPrompt> {
   const systemInstruction = `# Prompt perfetto per ChatGPT
 
 **CONTESTO**:
@@ -151,32 +169,113 @@ Your task is to use this framework to transform a user's simple topic or questio
       const jsonString = response.text;
       const parsedJson = JSON.parse(jsonString);
       return parsedJson as CraftPrompt;
-    } else {
+    } else if (provider === 'openai') {
       const ai = getAIInstance('openai') as OpenAI;
+
+      // Aggiungi esplicitamente al messaggio di sistema la richiesta di JSON per maggiore compatibilità
+      const enhancedSystemInstruction = systemInstruction + "\n\nIMPORTANT: You MUST respond with ONLY valid JSON in the exact schema specified above. Do not include any markdown, explanations, or text outside the JSON object.";
+
       const response = await ai.chat.completions.create({
-        model: "gpt-4",
+        model: "gpt-4o",
         messages: [
-          { role: "system", content: systemInstruction },
+          { role: "system", content: enhancedSystemInstruction },
           { role: "user", content: userPrompt }
         ],
-        response_format: { type: "json_object", schema: openaiResponseSchema },
+        response_format: { type: "json_object" },
         temperature: 0.7,
       });
 
-      const jsonString = response.choices[0].message.content;
+      let jsonString = response.choices[0].message.content;
       if (!jsonString) {
         throw new Error("Nessuna risposta ricevuta da OpenAI");
       }
+
+      // Rimuovi eventuali markdown code blocks
+      jsonString = jsonString.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+
       const parsedJson = JSON.parse(jsonString);
       return parsedJson as CraftPrompt;
+    } else {
+      // OpenRouter
+      const ai = getAIInstance('openrouter') as OpenAI;
+      const selectedModel = localStorage.getItem('openrouter_model') || 'openai/gpt-4o';
+
+      // Aggiungi esplicitamente al messaggio di sistema la richiesta di JSON con schema preciso
+      const openrouterSystemInstruction = systemInstruction + `\n\nIMPORTANT: You MUST respond with ONLY valid JSON using these EXACT field names (lowercase, no abbreviations):
+{
+  "contexto": "string",
+  "ruolo": "string",
+  "azione": "string",
+  "formato": "string",
+  "target": "string"
+}
+Do not use abbreviations like C, R, A, F, T. Do not use arrays. Do not use capitalized field names. Use exactly these lowercase field names.`;
+
+      // Prova prima con response_format, se fallisce riprova senza
+      let response;
+      try {
+        response = await ai.chat.completions.create({
+          model: selectedModel,
+          messages: [
+            { role: "system", content: openrouterSystemInstruction },
+            { role: "user", content: userPrompt }
+          ],
+          response_format: { type: "json_object" },
+          temperature: 0.7,
+        });
+      } catch (formatError: any) {
+        console.log('Modello non supporta response_format, riprovo senza:', formatError.message);
+        // Se fallisce con response_format, riprova senza
+        response = await ai.chat.completions.create({
+          model: selectedModel,
+          messages: [
+            { role: "system", content: openrouterSystemInstruction },
+            { role: "user", content: userPrompt }
+          ],
+          temperature: 0.7,
+        });
+      }
+
+      let jsonString = response.choices[0].message.content;
+      if (!jsonString) {
+        throw new Error("Nessuna risposta ricevuta da OpenRouter");
+      }
+
+      // Rimuovi eventuali markdown code blocks
+      jsonString = jsonString.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+
+      console.log('OpenRouter JSON response:', jsonString); // Debug log
+
+      const parsedJson = JSON.parse(jsonString);
+      console.log('Parsed JSON:', parsedJson); // Debug log
+
+      // Parsing robusto: supporta varie convenzioni di naming che i diversi modelli possono usare
+      const craftPrompt: CraftPrompt = {
+        contexto: parsedJson.contexto || parsedJson.Contexto || parsedJson.C || parsedJson.contesto || parsedJson.context || '',
+        ruolo: parsedJson.ruolo || parsedJson.Ruolo || parsedJson.R || parsedJson.role || '',
+        azione: (() => {
+          // Gestisce sia stringhe che array (alcuni modelli restituiscono array di azioni)
+          const field = parsedJson.azione || parsedJson.Azione || parsedJson.A || parsedJson.action;
+          if (Array.isArray(field)) {
+            return field.map((item, idx) => `${idx + 1}. ${item}`).join('\n');
+          }
+          return field || '';
+        })(),
+        formato: parsedJson.formato || parsedJson.Formato || parsedJson.F || parsedJson.format || '',
+        target: parsedJson.target || parsedJson.Target || parsedJson.T || parsedJson.audience || ''
+      };
+
+      console.log('Craft Prompt object:', craftPrompt); // Debug log
+      return craftPrompt;
     }
   } catch (error) {
     console.error(`Error generating C.R.A.F.T. prompt with ${provider}:`, error);
-    throw new Error(`Impossibile generare il prompt dall'API ${provider === 'gemini' ? 'Gemini' : 'OpenAI'}. Controlla la tua chiave API e la connessione di rete.`);
+    const providerName = provider === 'gemini' ? 'Gemini' : provider === 'openai' ? 'OpenAI' : 'OpenRouter';
+    throw new Error(`Impossibile generare il prompt dall'API ${providerName}. Controlla la tua chiave API e la connessione di rete.`);
   }
 }
 
-export async function testGeneratedPrompt(prompt: string, provider: 'gemini' | 'openai' = 'gemini'): Promise<{ result: string; truncated: boolean }> {
+export async function testGeneratedPrompt(prompt: string, provider: 'gemini' | 'openai' | 'openrouter' = 'gemini'): Promise<{ result: string; truncated: boolean }> {
     const MAX_OUTPUT_TOKENS = 8192; // Aumentato da 2048 a 8192 per Gemini 2.5 Flash
     
     try {
@@ -195,10 +294,24 @@ export async function testGeneratedPrompt(prompt: string, provider: 'gemini' | '
             const result = response.text;
             const truncated = result.length > 0 && response.candidates?.[0]?.finishReason === 'MAX_TOKENS';
             return { result, truncated };
-        } else {
+        } else if (provider === 'openai') {
             const ai = getAIInstance('openai') as OpenAI;
             const response = await ai.chat.completions.create({
-                model: "gpt-4",
+                model: "gpt-4o",
+                messages: [{ role: "user", content: prompt }],
+                temperature: 0.8,
+                max_tokens: MAX_OUTPUT_TOKENS,
+            });
+
+            const result = response.choices[0].message.content || "Nessuna risposta ricevuta";
+            const truncated = response.choices[0].finish_reason === 'length';
+            return { result, truncated };
+        } else {
+            // OpenRouter
+            const ai = getAIInstance('openrouter') as OpenAI;
+            const selectedModel = localStorage.getItem('openrouter_model') || 'openai/gpt-4o';
+            const response = await ai.chat.completions.create({
+                model: selectedModel,
                 messages: [{ role: "user", content: prompt }],
                 temperature: 0.8,
                 max_tokens: MAX_OUTPUT_TOKENS,
@@ -210,6 +323,7 @@ export async function testGeneratedPrompt(prompt: string, provider: 'gemini' | '
         }
     } catch (error) {
         console.error(`Error testing prompt with ${provider}:`, error);
-        throw new Error(`Impossibile ottenere una risposta per il prompt di test dall'API ${provider === 'gemini' ? 'Gemini' : 'OpenAI'}.`);
+        const providerName = provider === 'gemini' ? 'Gemini' : provider === 'openai' ? 'OpenAI' : 'OpenRouter';
+        throw new Error(`Impossibile ottenere una risposta per il prompt di test dall'API ${providerName}.`);
     }
 }

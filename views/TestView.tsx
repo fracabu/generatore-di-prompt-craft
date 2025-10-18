@@ -12,12 +12,12 @@ const TestView: React.FC = () => {
   const [isTesting, setIsTesting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const [selectedProvider, setSelectedProvider] = useState<'gemini' | 'openai'>('gemini');
+  const [selectedProvider, setSelectedProvider] = useState<'gemini' | 'openai' | 'openrouter'>('gemini');
 
   useEffect(() => {
     // Carica il prompt e il provider dal localStorage
     const storedPrompt = localStorage.getItem('testPrompt');
-    const storedProvider = localStorage.getItem('testProvider') as 'gemini' | 'openai';
+    const storedProvider = localStorage.getItem('testProvider') as 'gemini' | 'openai' | 'openrouter';
     
     if (storedProvider) {
       setSelectedProvider(storedProvider);
@@ -32,7 +32,7 @@ const TestView: React.FC = () => {
     }
   }, []);
 
-  const handleTestPrompt = async (promptToTest?: string, provider?: 'gemini' | 'openai') => {
+  const handleTestPrompt = async (promptToTest?: string, provider?: 'gemini' | 'openai' | 'openrouter') => {
     const prompt = promptToTest || testPrompt;
     const testProvider = provider || selectedProvider;
     

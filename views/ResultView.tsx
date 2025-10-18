@@ -16,23 +16,45 @@ const ResultView: React.FC = () => {
   });
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const [selectedProvider, setSelectedProvider] = useState<'gemini' | 'openai'>('gemini');
+  const [selectedProvider, setSelectedProvider] = useState<'gemini' | 'openai' | 'openrouter'>('gemini');
+  const [savedPrompts, setSavedPrompts] = useState<any[]>([]);
 
   useEffect(() => {
     // Carica i dati dal localStorage
     const storedTopic = localStorage.getItem('currentTopic');
     const storedPrompt = localStorage.getItem('currentCraftPrompt');
-    const storedProvider = localStorage.getItem('selectedProvider') as 'gemini' | 'openai';
-    
+    const storedProvider = localStorage.getItem('selectedProvider') as 'gemini' | 'openai' | 'openrouter';
+    const storedSavedPrompts = localStorage.getItem('savedCraftPrompts');
+
+    console.log('ResultView - Loading from localStorage:', { storedTopic, storedPrompt }); // Debug log
+
     if (storedTopic) setTopic(storedTopic);
     if (storedPrompt) {
       try {
-        setCraftPrompt(JSON.parse(storedPrompt));
+        const parsed = JSON.parse(storedPrompt);
+        console.log('ResultView - Parsed prompt:', parsed); // Debug log
+        // Assicurati che tutti i campi esistano (con fallback per OpenRouter che può usare maiuscole)
+        const finalPrompt = {
+          contexto: parsed.contexto || parsed.Contexto || '',
+          ruolo: parsed.ruolo || parsed.Ruolo || '',
+          azione: parsed.azione || parsed.Azione || '',
+          formato: parsed.formato || parsed.Formato || '',
+          target: parsed.target || parsed.Target || ''
+        };
+        console.log('ResultView - Final prompt to display:', finalPrompt); // Debug log
+        setCraftPrompt(finalPrompt);
       } catch (err) {
         console.error('Error parsing stored prompt:', err);
       }
     }
     if (storedProvider) setSelectedProvider(storedProvider);
+    if (storedSavedPrompts) {
+      try {
+        setSavedPrompts(JSON.parse(storedSavedPrompts));
+      } catch (err) {
+        console.error('Error parsing saved prompts:', err);
+      }
+    }
   }, []);
 
   const handleCraftInputChange = (field: keyof CraftPrompt, value: string) => {
@@ -40,7 +62,7 @@ const ResultView: React.FC = () => {
   };
 
   const combinePrompt = (prompt: CraftPrompt): string => {
-    return `Contesto: ${prompt.contexto}\n\nRuolo: ${prompt.ruolo}\n\nAzione: ${prompt.azione}\n\nFormato: ${prompt.formato}\n\nTarget: ${prompt.target}`;
+    return `Contesto: ${prompt.contexto || ''}\n\nRuolo: ${prompt.ruolo || ''}\n\nAzione: ${prompt.azione || ''}\n\nFormato: ${prompt.formato || ''}\n\nTarget: ${prompt.target || ''}`;
   };
 
   const handleSavePrompt = () => {
@@ -171,17 +193,25 @@ const ResultView: React.FC = () => {
         <section className="bg-slate-800/50 border border-slate-700 p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-lg">
           <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-emerald-400 mb-3 sm:mb-4">Modifica il tuo Prompt C.R.A.F.T.</h3>
           <div className="space-y-3 sm:space-y-4">
-            {Object.entries(craftPrompt).map(([key, value]) => (
+            {/* Ordine fisso dei campi */}
+            {[
+              { key: 'contexto', label: 'Contesto' },
+              { key: 'ruolo', label: 'Ruolo' },
+              { key: 'azione', label: 'Azione' },
+              { key: 'formato', label: 'Formato' },
+              { key: 'target', label: 'Target' }
+            ].map(({ key, label }) => (
               <div key={key}>
-                <label htmlFor={key} className="block text-sm sm:text-md font-medium text-slate-300 capitalize mb-1.5 sm:mb-2">
-                  {key === 'contexto' ? 'Contesto' : key.charAt(0).toUpperCase() + key.slice(1)}
+                <label htmlFor={key} className="block text-sm sm:text-md font-medium text-slate-300 mb-1.5 sm:mb-2">
+                  {label}
                 </label>
                 <textarea
                   id={key}
-                  value={value}
+                  value={craftPrompt[key as keyof CraftPrompt] || ''}
                   onChange={(e) => handleCraftInputChange(key as keyof CraftPrompt, e.target.value)}
                   rows={2}
                   className="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 sm:p-3 text-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors text-sm"
+                  placeholder={`Inserisci ${label.toLowerCase()}...`}
                 />
               </div>
             ))}

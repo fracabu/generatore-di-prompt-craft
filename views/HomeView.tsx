@@ -23,6 +23,12 @@ const HomeView: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showTutorial, setShowTutorial] = useState(false);
   const [currentSuggestions, setCurrentSuggestions] = useState(examplePrompts.slice(0, 3));
+  // Carica il provider dal localStorage, default a 'gemini' se non presente
+  const [provider, setProvider] = useState<'gemini' | 'openai' | 'openrouter'>(() => {
+    const savedProvider = localStorage.getItem('selectedProvider') as 'gemini' | 'openai' | 'openrouter';
+    return savedProvider || 'gemini';
+  });
+  const [openrouterModel, setOpenrouterModel] = useState<string>('openai/gpt-4o');
   const [hasApiKey, setHasApiKey] = useState(false);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
@@ -43,28 +49,37 @@ const HomeView: React.FC = () => {
     return SparklesIcon; // Default icon
   };
 
-  // Controlla se la chiave API è configurata
+  // Controlla se la chiave API è configurata per il provider selezionato
   useEffect(() => {
     const checkApiKey = () => {
-      const apiKey = localStorage.getItem('gemini_api_key');
-      setHasApiKey(!!apiKey);
+      const geminiKey = localStorage.getItem('gemini_api_key');
+      const openaiKey = localStorage.getItem('openai_api_key');
+      const openrouterKey = localStorage.getItem('openrouter_api_key');
+
+      if (provider === 'gemini') {
+        setHasApiKey(!!geminiKey);
+      } else if (provider === 'openai') {
+        setHasApiKey(!!openaiKey);
+      } else {
+        setHasApiKey(!!openrouterKey);
+      }
     };
-    
+
     checkApiKey();
-    
+
     // Ascolta i cambiamenti al localStorage
     const handleStorageChange = () => {
       checkApiKey();
     };
-    
+
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('localStorageChange', handleStorageChange);
-    
+
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('localStorageChange', handleStorageChange);
     };
-  }, []);
+  }, [provider]);
 
   // Non svuotare il localStorage all'avvio per permettere navigazione tra view
   
@@ -72,7 +87,9 @@ const HomeView: React.FC = () => {
   useEffect(() => {
     const storedTopic = localStorage.getItem('currentTopic');
     const storedPrompt = localStorage.getItem('currentCraftPrompt');
-    
+    const storedModel = localStorage.getItem('openrouter_model');
+    const storedProvider = localStorage.getItem('selectedProvider') as 'gemini' | 'openai' | 'openrouter';
+
     if (storedTopic) setTopic(storedTopic);
     if (storedPrompt) {
       try {
@@ -80,6 +97,12 @@ const HomeView: React.FC = () => {
       } catch (err) {
         console.error('Error parsing stored prompt:', err);
       }
+    }
+    if (storedModel) {
+      setOpenrouterModel(storedModel);
+    }
+    if (storedProvider) {
+      setProvider(storedProvider);
     }
   }, []);
 
@@ -112,13 +135,15 @@ const HomeView: React.FC = () => {
   }, []);
 
   const handleGeneratePrompt = async () => {
-    const apiKey = localStorage.getItem('gemini_api_key');
-    
+    const apiKeyName = provider === 'gemini' ? 'gemini_api_key' : provider === 'openai' ? 'openai_api_key' : 'openrouter_api_key';
+    const apiKey = localStorage.getItem(apiKeyName);
+
     if (!apiKey) {
-      setError("Per favore, configura la tua chiave API Gemini cliccando sul pulsante 'API' in alto a destra.");
+      const providerName = provider === 'gemini' ? 'Gemini' : provider === 'openai' ? 'OpenAI' : 'OpenRouter';
+      setError(`Per favore, configura la tua chiave API ${providerName} cliccando sul pulsante 'API' in alto a destra.`);
       return;
     }
-    
+
     if (!topic.trim()) {
       setError("Per favore, inserisci un argomento per iniziare.");
       return;
@@ -126,12 +151,20 @@ const HomeView: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const generatedPrompt = await generateCraftPrompt(topic, 'gemini');
+      // Salva il modello OpenRouter se selezionato
+      if (provider === 'openrouter') {
+        localStorage.setItem('openrouter_model', openrouterModel);
+      }
+
+      const generatedPrompt = await generateCraftPrompt(topic, provider);
+      console.log('Generated prompt received in HomeView:', generatedPrompt); // Debug log
       setCraftPrompt(generatedPrompt);
       // Salva i dati nello stato globale o localStorage e naviga
       localStorage.setItem('currentTopic', topic);
-      localStorage.setItem('currentCraftPrompt', JSON.stringify(generatedPrompt));
-      localStorage.setItem('selectedProvider', 'gemini');
+      const savedJson = JSON.stringify(generatedPrompt);
+      console.log('Saving to localStorage:', savedJson); // Debug log
+      localStorage.setItem('currentCraftPrompt', savedJson);
+      localStorage.setItem('selectedProvider', provider);
       navigate('/result');
     } catch (err: any) {
       setError(err.message || "Si è verificato un errore sconosciuto.");
@@ -175,7 +208,133 @@ const HomeView: React.FC = () => {
         <div className="flex-1 flex flex-col gap-3 min-h-0">
           {/* Input Section */}
           <section className="bg-slate-800/50 border border-slate-700 p-3 sm:p-4 rounded-xl shadow-lg flex-shrink-0">
-            <label htmlFor="topic-input" className="block text-sm sm:text-base font-semibold text-sky-400 mb-1.5 sm:mb-2">1. Inserisci il tuo argomento</label>
+            {/* Provider Selection */}
+            <div className="mb-3 sm:mb-4">
+              <label className="block text-sm sm:text-base font-semibold text-sky-400 mb-2">Seleziona AI Provider</label>
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setProvider('gemini');
+                    localStorage.setItem('selectedProvider', 'gemini');
+                  }}
+                  className={`flex flex-col items-center justify-center gap-1 px-2 py-2 rounded-lg text-xs font-medium transition-all ${
+                    provider === 'gemini'
+                      ? 'bg-emerald-600 text-white border-2 border-emerald-400'
+                      : 'bg-slate-700 text-slate-300 border-2 border-slate-600 hover:bg-slate-600'
+                  }`}
+                >
+                  <div className={`w-3 h-3 rounded-full border-2 ${provider === 'gemini' ? 'bg-white border-white' : 'border-slate-400'}`} />
+                  <span>Gemini</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setProvider('openai');
+                    localStorage.setItem('selectedProvider', 'openai');
+                  }}
+                  className={`flex flex-col items-center justify-center gap-1 px-2 py-2 rounded-lg text-xs font-medium transition-all ${
+                    provider === 'openai'
+                      ? 'bg-sky-600 text-white border-2 border-sky-400'
+                      : 'bg-slate-700 text-slate-300 border-2 border-slate-600 hover:bg-slate-600'
+                  }`}
+                >
+                  <div className={`w-3 h-3 rounded-full border-2 ${provider === 'openai' ? 'bg-white border-white' : 'border-slate-400'}`} />
+                  <span>OpenAI</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setProvider('openrouter');
+                    localStorage.setItem('selectedProvider', 'openrouter');
+                  }}
+                  className={`flex flex-col items-center justify-center gap-1 px-2 py-2 rounded-lg text-xs font-medium transition-all ${
+                    provider === 'openrouter'
+                      ? 'bg-purple-600 text-white border-2 border-purple-400'
+                      : 'bg-slate-700 text-slate-300 border-2 border-slate-600 hover:bg-slate-600'
+                  }`}
+                >
+                  <div className={`w-3 h-3 rounded-full border-2 ${provider === 'openrouter' ? 'bg-white border-white' : 'border-slate-400'}`} />
+                  <span>OpenRouter</span>
+                </button>
+              </div>
+              {!hasApiKey && (
+                <p className="text-red-400 text-xs mt-2">
+                  ⚠️ Chiave API {provider === 'gemini' ? 'Gemini' : provider === 'openai' ? 'OpenAI' : 'OpenRouter'} non configurata. Clicca sul pulsante 'API' in alto a destra.
+                </p>
+              )}
+
+              {/* OpenRouter Model Selection */}
+              {provider === 'openrouter' && (
+                <div className="mt-3 pt-3 border-t border-slate-600">
+                  <label htmlFor="model-select" className="block text-xs font-medium text-slate-300 mb-2">
+                    Seleziona Modello OpenRouter
+                  </label>
+                  <select
+                    id="model-select"
+                    value={openrouterModel}
+                    onChange={(e) => setOpenrouterModel(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                  >
+                    <optgroup label="OpenAI">
+                      <option value="openai/gpt-5">GPT-5 (Più recente)</option>
+                      <option value="openai/gpt-5-mini">GPT-5 Mini</option>
+                      <option value="openai/gpt-4o">GPT-4o</option>
+                      <option value="openai/gpt-4o-mini">GPT-4o Mini</option>
+                      <option value="openai/gpt-4-turbo">GPT-4 Turbo</option>
+                      <option value="openai/gpt-4">GPT-4</option>
+                      <option value="openai/gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                    </optgroup>
+                    <optgroup label="Anthropic">
+                      <option value="anthropic/claude-sonnet-4.5">Claude Sonnet 4.5 (Più recente)</option>
+                      <option value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet</option>
+                      <option value="anthropic/claude-3-opus">Claude 3 Opus</option>
+                      <option value="anthropic/claude-3-sonnet">Claude 3 Sonnet</option>
+                      <option value="anthropic/claude-3-haiku">Claude 3 Haiku</option>
+                    </optgroup>
+                    <optgroup label="Google">
+                      <option value="google/gemini-pro-1.5">Gemini Pro 1.5</option>
+                      <option value="google/gemini-flash-1.5">Gemini Flash 1.5</option>
+                      <option value="google/gemini-2.0-flash-exp">Gemini 2.0 Flash (Sperimentale)</option>
+                    </optgroup>
+                    <optgroup label="Meta Llama">
+                      <option value="meta-llama/llama-3.3-70b-instruct">Llama 3.3 70B Instruct</option>
+                      <option value="meta-llama/llama-3.1-405b-instruct">Llama 3.1 405B Instruct</option>
+                      <option value="meta-llama/llama-3.1-70b-instruct">Llama 3.1 70B Instruct</option>
+                      <option value="meta-llama/llama-3.1-8b-instruct">Llama 3.1 8B Instruct</option>
+                    </optgroup>
+                    <optgroup label="Mistral">
+                      <option value="mistralai/mistral-large">Mistral Large</option>
+                      <option value="mistralai/mistral-small">Mistral Small</option>
+                      <option value="mistralai/pixtral-large">Pixtral Large (Multimodale)</option>
+                    </optgroup>
+                    <optgroup label="Qwen">
+                      <option value="qwen/qwen-2.5-72b-instruct">Qwen 2.5 72B Instruct</option>
+                      <option value="qwen/qwq-32b-preview">QwQ 32B Preview (Reasoning)</option>
+                      <option value="qwen/qwen3-vl-8b-instruct">Qwen3 VL 8B Instruct</option>
+                    </optgroup>
+                    <optgroup label="DeepSeek">
+                      <option value="deepseek/deepseek-chat">DeepSeek Chat</option>
+                      <option value="deepseek/deepseek-r1">DeepSeek R1 (Reasoning)</option>
+                    </optgroup>
+                    <optgroup label="Zhipu AI (GLM)">
+                      <option value="z-ai/glm-4.6">GLM 4.6</option>
+                      <option value="z-ai/glm-4.5">GLM 4.5</option>
+                    </optgroup>
+                    <optgroup label="Altri">
+                      <option value="perplexity/llama-3.1-sonar-large-128k-online">Perplexity Sonar (Online)</option>
+                      <option value="x-ai/grok-beta">Grok Beta (xAI)</option>
+                      <option value="cohere/command-r-plus">Cohere Command R+</option>
+                    </optgroup>
+                  </select>
+                  <p className="text-slate-400 text-xs mt-1">
+                    Puoi vedere tutti i modelli su <a href="https://openrouter.ai/models" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300 underline">openrouter.ai/models</a>
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <label htmlFor="topic-input" className="block text-sm sm:text-base font-semibold text-sky-400 mb-1.5 sm:mb-2">Inserisci il tuo argomento</label>
             <p className="text-slate-400 mb-2 sm:mb-3 text-xs">Descrivi cosa vuoi ottenere. Es: "un'email di marketing per un nuovo prodotto"</p>
             <div className="flex flex-col gap-2 sm:gap-3">
               <textarea
