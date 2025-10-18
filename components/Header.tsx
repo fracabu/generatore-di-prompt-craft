@@ -88,12 +88,22 @@ const Header: React.FC = () => {
               <Link
                 to="/test"
                 className={`px-2 py-1.5 sm:px-3 sm:py-2 rounded-md text-xs sm:text-sm font-medium transition-colors ${
-                  isActive('/test') 
-                    ? 'bg-sky-600 text-white' 
+                  isActive('/test')
+                    ? 'bg-sky-600 text-white'
                     : 'text-slate-300 hover:bg-slate-700 hover:text-white'
                 }`}
               >
                 Test
+              </Link>
+              <Link
+                to="/models-guide"
+                className={`px-2 py-1.5 sm:px-3 sm:py-2 rounded-md text-xs sm:text-sm font-medium transition-colors ${
+                  isActive('/models-guide')
+                    ? 'bg-sky-600 text-white'
+                    : 'text-slate-300 hover:bg-slate-700 hover:text-white'
+                }`}
+              >
+                Guida
               </Link>
             </nav>
             
@@ -144,12 +154,23 @@ const Header: React.FC = () => {
                 to="/test"
                 onClick={closeMenu}
                 className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                  isActive('/test') 
-                    ? 'bg-sky-600 text-white' 
+                  isActive('/test')
+                    ? 'bg-sky-600 text-white'
                     : 'text-slate-300 hover:bg-slate-700 hover:text-white'
                 }`}
               >
                 🧪 Test
+              </Link>
+              <Link
+                to="/models-guide"
+                onClick={closeMenu}
+                className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                  isActive('/models-guide')
+                    ? 'bg-sky-600 text-white'
+                    : 'text-slate-300 hover:bg-slate-700 hover:text-white'
+                }`}
+              >
+                📚 Guida Modelli
               </Link>
             </nav>
           </div>

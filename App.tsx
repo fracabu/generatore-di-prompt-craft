@@ -5,6 +5,8 @@ import Footer from './components/Footer';
 import HomeView from './views/HomeView';
 import ResultView from './views/ResultView';
 import TestView from './views/TestView';
+import ModelsGuideView from './views/ModelsGuideView';
+import CraftGuideView from './views/CraftGuideView';
 
 function App() {
   useEffect(() => {
@@ -43,6 +45,8 @@ function App() {
             <Route path="/" element={<HomeView />} />
             <Route path="/result" element={<ResultView />} />
             <Route path="/test" element={<TestView />} />
+            <Route path="/models-guide" element={<ModelsGuideView />} />
+            <Route path="/craft-guide" element={<CraftGuideView />} />
           </Routes>
         </main>
         <Footer />

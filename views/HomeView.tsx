@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import type { CraftPrompt } from '../types';
 import { generateCraftPrompt } from '../services/aiService';
 import { examplePrompts } from '../data/examplePrompts';
-import { SparklesIcon, QuestionMarkIcon, MegaphoneIcon, BookOpenIcon, DocumentTextIcon, YouTubeIcon } from '../components/IconComponents';
-import TutorialModal from '../components/TutorialModal';
+import { SparklesIcon, MegaphoneIcon, BookOpenIcon, DocumentTextIcon, YouTubeIcon } from '../components/IconComponents';
 import WarningModal from '../components/WarningModal';
 
 const initialCraftPrompt: CraftPrompt = {
@@ -21,7 +20,6 @@ const HomeView: React.FC = () => {
   const [craftPrompt, setCraftPrompt] = useState<CraftPrompt>(initialCraftPrompt);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showTutorial, setShowTutorial] = useState(false);
   const [currentSuggestions, setCurrentSuggestions] = useState(examplePrompts.slice(0, 3));
   // Carica il provider dal localStorage, default a 'gemini' se non presente
   const [provider, setProvider] = useState<'gemini' | 'openai' | 'openrouter'>(() => {
@@ -228,57 +226,45 @@ const HomeView: React.FC = () => {
   };
 
   return (
-    <div className="bg-slate-900 text-slate-200 font-sans flex-1 flex flex-col overflow-hidden">
-      {showTutorial && <TutorialModal onClose={() => setShowTutorial(false)} />}
+    <div className="bg-slate-900 text-slate-200 font-sans flex-1 flex flex-col h-screen overflow-hidden">
       {error && <WarningModal title="Attenzione" onClose={() => setError(null)}><p>{error}</p></WarningModal>}
 
-      <div className="flex-1 max-w-6xl mx-auto w-full px-3 sm:px-4 py-2 sm:py-3 flex flex-col overflow-hidden">
+      <div className="flex-1 max-w-screen-2xl mx-auto w-full px-6 sm:px-12 lg:px-20 py-8 sm:py-12 flex flex-col overflow-hidden">
         {/* Header Section */}
-        <header className="flex flex-col gap-2 sm:gap-3 mb-3 sm:mb-4 flex-shrink-0">
-          <div className="flex items-start sm:items-center justify-between">
-            <div className="flex items-center space-x-2 sm:space-x-3">
-              <div className="bg-emerald-500/20 p-1.5 sm:p-2 rounded-full">
-                <SparklesIcon className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400" />
-              </div>
-              <div>
-                <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-100">Crea un nuovo Prompt</h2>
-                <p className="text-slate-400 text-xs sm:text-sm hidden sm:block">Inserisci un argomento e genera un prompt C.R.A.F.T.</p>
-                <p className="text-slate-400 text-xs sm:hidden">Genera prompt C.R.A.F.T.</p>
-              </div>
+        <header className="flex flex-col gap-3 sm:gap-4 mb-6 sm:mb-8 flex-shrink-0">
+          <div className="flex items-center space-x-3 sm:space-x-4">
+            <div className="bg-emerald-500/20 p-3 sm:p-4 rounded-full">
+              <SparklesIcon className="w-8 h-8 sm:w-10 sm:h-10 text-emerald-400" />
             </div>
-            <button 
-              onClick={() => setShowTutorial(true)}
-              className="flex items-center space-x-1 sm:space-x-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-semibold py-1.5 px-2 sm:py-2 sm:px-3 rounded-lg transition-colors duration-200 text-xs sm:text-sm"
-              aria-label="Mostra tutorial C.R.A.F.T."
-            >
-              <QuestionMarkIcon className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="hidden xs:inline">Cos'è C.R.A.F.T.?</span>
-              <span className="xs:hidden">?</span>
-            </button>
+            <div>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-100">Crea un nuovo Prompt</h2>
+              <p className="text-slate-400 text-base sm:text-lg lg:text-xl mt-2 hidden sm:block">Inserisci un argomento e genera un prompt C.R.A.F.T.</p>
+              <p className="text-slate-400 text-sm sm:hidden">Genera prompt C.R.A.F.T.</p>
+            </div>
           </div>
         </header>
 
         {/* Main Content */}
-        <div className={`flex-1 flex flex-col lg:flex-row gap-3 sm:gap-4 min-h-0 max-w-7xl mx-auto w-full ${isLoading ? 'justify-center items-center' : ''}`}>
+        <div className={`flex-1 flex flex-col lg:flex-row gap-6 sm:gap-8 min-h-0 w-full ${isLoading ? 'justify-center items-center' : ''}`}>
           {/* Input Section */}
-          <section className={`bg-slate-800/50 border border-slate-700 p-3 sm:p-4 rounded-xl shadow-lg transition-all duration-300 ${isLoading ? 'max-w-2xl w-full' : 'lg:w-1/2 flex-shrink-0'}`}>
+          <section className={`bg-slate-800/50 border border-slate-700 p-6 sm:p-8 rounded-xl shadow-lg transition-all duration-300 ${isLoading ? 'max-w-3xl w-full' : 'lg:w-1/2 flex-shrink-0'}`}>
             {/* Provider Selection */}
-            <div className="mb-3 sm:mb-4">
-              <label className="block text-sm sm:text-base font-semibold text-sky-400 mb-2">Seleziona AI Provider</label>
-              <div className="grid grid-cols-3 gap-2">
+            <div className="mb-5 sm:mb-6">
+              <label className="block text-base sm:text-lg lg:text-xl font-semibold text-sky-400 mb-3">Seleziona AI Provider</label>
+              <div className="grid grid-cols-3 gap-3">
                 <button
                   type="button"
                   onClick={() => {
                     setProvider('gemini');
                     localStorage.setItem('selectedProvider', 'gemini');
                   }}
-                  className={`flex flex-col items-center justify-center gap-1 px-2 py-2 rounded-lg text-xs font-medium transition-all ${
+                  className={`flex flex-col items-center justify-center gap-2 px-3 py-3 rounded-lg text-sm sm:text-base font-medium transition-all ${
                     provider === 'gemini'
                       ? 'bg-emerald-600 text-white border-2 border-emerald-400'
                       : 'bg-slate-700 text-slate-300 border-2 border-slate-600 hover:bg-slate-600'
                   }`}
                 >
-                  <div className={`w-3 h-3 rounded-full border-2 ${provider === 'gemini' ? 'bg-white border-white' : 'border-slate-400'}`} />
+                  <div className={`w-4 h-4 rounded-full border-2 ${provider === 'gemini' ? 'bg-white border-white' : 'border-slate-400'}`} />
                   <span>Gemini</span>
                 </button>
                 <button
@@ -287,13 +273,13 @@ const HomeView: React.FC = () => {
                     setProvider('openai');
                     localStorage.setItem('selectedProvider', 'openai');
                   }}
-                  className={`flex flex-col items-center justify-center gap-1 px-2 py-2 rounded-lg text-xs font-medium transition-all ${
+                  className={`flex flex-col items-center justify-center gap-2 px-3 py-3 rounded-lg text-sm sm:text-base font-medium transition-all ${
                     provider === 'openai'
                       ? 'bg-sky-600 text-white border-2 border-sky-400'
                       : 'bg-slate-700 text-slate-300 border-2 border-slate-600 hover:bg-slate-600'
                   }`}
                 >
-                  <div className={`w-3 h-3 rounded-full border-2 ${provider === 'openai' ? 'bg-white border-white' : 'border-slate-400'}`} />
+                  <div className={`w-4 h-4 rounded-full border-2 ${provider === 'openai' ? 'bg-white border-white' : 'border-slate-400'}`} />
                   <span>OpenAI</span>
                 </button>
                 <button
@@ -302,33 +288,33 @@ const HomeView: React.FC = () => {
                     setProvider('openrouter');
                     localStorage.setItem('selectedProvider', 'openrouter');
                   }}
-                  className={`flex flex-col items-center justify-center gap-1 px-2 py-2 rounded-lg text-xs font-medium transition-all ${
+                  className={`flex flex-col items-center justify-center gap-2 px-3 py-3 rounded-lg text-sm sm:text-base font-medium transition-all ${
                     provider === 'openrouter'
                       ? 'bg-purple-600 text-white border-2 border-purple-400'
                       : 'bg-slate-700 text-slate-300 border-2 border-slate-600 hover:bg-slate-600'
                   }`}
                 >
-                  <div className={`w-3 h-3 rounded-full border-2 ${provider === 'openrouter' ? 'bg-white border-white' : 'border-slate-400'}`} />
+                  <div className={`w-4 h-4 rounded-full border-2 ${provider === 'openrouter' ? 'bg-white border-white' : 'border-slate-400'}`} />
                   <span>OpenRouter</span>
                 </button>
               </div>
               {!hasApiKey && (
-                <p className="text-red-400 text-xs mt-2">
+                <p className="text-red-400 text-sm sm:text-base mt-3">
                   ⚠️ Chiave API {provider === 'gemini' ? 'Gemini' : provider === 'openai' ? 'OpenAI' : 'OpenRouter'} non configurata. Clicca sul pulsante 'API' in alto a destra.
                 </p>
               )}
 
               {/* OpenAI Model Selection */}
               {provider === 'openai' && (
-                <div className="mt-3 pt-3 border-t border-slate-600">
-                  <label htmlFor="openai-model-select" className="block text-xs font-medium text-slate-300 mb-2">
+                <div className="mt-4 pt-4 border-t border-slate-600">
+                  <label htmlFor="openai-model-select" className="block text-sm sm:text-base font-medium text-slate-300 mb-3">
                     Seleziona Modello OpenAI
                   </label>
                   <select
                     id="openai-model-select"
                     value={openaiModel}
                     onChange={(e) => setOpenaiModel(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm"
+                    className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm sm:text-base"
                   >
                     <option value="gpt-5-2025-08-07">GPT-5 (2025-08-07)</option>
                     <option value="gpt-5-pro-2025-10-06">GPT-5 Pro (2025-10-06)</option>
@@ -336,7 +322,7 @@ const HomeView: React.FC = () => {
                     <option value="gpt-5-nano-2025-08-07">GPT-5 Nano (2025-08-07)</option>
                     <option value="gpt-4.1-2025-04-14">GPT-4.1 (2025-04-14)</option>
                   </select>
-                  <p className="text-slate-400 text-xs mt-1">
+                  <p className="text-slate-400 text-sm mt-2">
                     Documentazione modelli: <a href="https://platform.openai.com/docs/models" target="_blank" rel="noopener noreferrer" className="text-sky-400 hover:text-sky-300 underline">platform.openai.com/docs/models</a>
                   </p>
                 </div>
@@ -344,15 +330,15 @@ const HomeView: React.FC = () => {
 
               {/* Gemini Model Selection */}
               {provider === 'gemini' && (
-                <div className="mt-3 pt-3 border-t border-slate-600">
-                  <label htmlFor="gemini-model-select" className="block text-xs font-medium text-slate-300 mb-2">
+                <div className="mt-4 pt-4 border-t border-slate-600">
+                  <label htmlFor="gemini-model-select" className="block text-sm sm:text-base font-medium text-slate-300 mb-3">
                     Seleziona Modello Gemini
                   </label>
                   <select
                     id="gemini-model-select"
                     value={geminiModel}
                     onChange={(e) => setGeminiModel(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                    className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm sm:text-base"
                   >
                     <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash (Experimental)</option>
                     <option value="gemini-2.0-flash-thinking-exp-01-21">Gemini 2.0 Flash Thinking</option>
@@ -360,7 +346,7 @@ const HomeView: React.FC = () => {
                     <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
                     <option value="gemini-1.0-pro">Gemini 1.0 Pro</option>
                   </select>
-                  <p className="text-slate-400 text-xs mt-1">
+                  <p className="text-slate-400 text-sm mt-2">
                     Documentazione modelli: <a href="https://ai.google.dev/gemini-api/docs/models/gemini" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 underline">ai.google.dev/gemini-api/docs/models</a>
                   </p>
                 </div>
@@ -368,15 +354,15 @@ const HomeView: React.FC = () => {
 
               {/* OpenRouter Model Selection */}
               {provider === 'openrouter' && (
-                <div className="mt-3 pt-3 border-t border-slate-600">
-                  <label htmlFor="model-select" className="block text-xs font-medium text-slate-300 mb-2">
+                <div className="mt-4 pt-4 border-t border-slate-600">
+                  <label htmlFor="model-select" className="block text-sm sm:text-base font-medium text-slate-300 mb-3">
                     Seleziona Modello OpenRouter
                   </label>
                   <select
                     id="model-select"
                     value={openrouterModel}
                     onChange={(e) => setOpenrouterModel(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                    className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm sm:text-base"
                   >
                     <optgroup label="OpenAI">
                       <option value="openai/gpt-5">GPT-5</option>
@@ -445,24 +431,24 @@ const HomeView: React.FC = () => {
                       <option value="cohere/command-r-plus">Cohere Command R+</option>
                     </optgroup>
                   </select>
-                  <p className="text-slate-400 text-xs mt-1">
+                  <p className="text-slate-400 text-sm mt-2">
                     Puoi vedere tutti i modelli su <a href="https://openrouter.ai/models" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300 underline">openrouter.ai/models</a>
                   </p>
                 </div>
               )}
             </div>
 
-            <label htmlFor="topic-input" className="block text-sm sm:text-base font-semibold text-sky-400 mb-1.5 sm:mb-2">Inserisci il tuo argomento</label>
-            <p className="text-slate-400 mb-2 sm:mb-3 text-xs">Descrivi cosa vuoi ottenere. Es: "un'email di marketing per un nuovo prodotto"</p>
-            <div className="flex flex-col gap-2 sm:gap-3">
+            <label htmlFor="topic-input" className="block text-base sm:text-lg lg:text-xl font-semibold text-sky-400 mb-2 sm:mb-3">Inserisci il tuo argomento</label>
+            <p className="text-slate-400 mb-3 sm:mb-4 text-sm sm:text-base">Descrivi cosa vuoi ottenere. Es: "un'email di marketing per un nuovo prodotto"</p>
+            <div className="flex flex-col gap-3 sm:gap-4">
               <textarea
                 ref={textareaRef}
                 id="topic-input"
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
                 placeholder="Es: Una sceneggiatura per un video YouTube sui viaggi spaziali"
-                className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all text-sm resize-none overflow-hidden scrollbar-hide"
-                style={{ minHeight: '40px', maxHeight: '128px' }}
+                className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all text-base sm:text-lg resize-none overflow-hidden scrollbar-hide"
+                style={{ minHeight: '60px', maxHeight: '160px' }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -516,18 +502,18 @@ const HomeView: React.FC = () => {
                 <span 
                   className="absolute top-0 left-0 w-full h-full rounded-xl bg-gradient-to-l from-sky-950 via-sky-700 to-sky-950"
                 />
-                <span 
-                  className="flex items-center justify-center min-h-[40px] px-4 py-2 rounded-xl text-white font-semibold bg-sky-600 transition-transform duration-300 ease-out text-sm"
+                <span
+                  className="flex items-center justify-center min-h-[52px] px-6 py-3 rounded-xl text-white font-semibold bg-sky-600 transition-transform duration-300 ease-out text-base sm:text-lg"
                   style={{ transform: 'translateY(-2px)' }}
                 >
                   {isLoading ? (
                     <>
-                      <div className="w-4 h-4 border-2 border-t-white border-slate-400 rounded-full animate-spin mr-2"></div>
+                      <div className="w-5 h-5 border-2 border-t-white border-slate-400 rounded-full animate-spin mr-3"></div>
                       <span>Generazione...</span>
                     </>
                   ) : (
                     <>
-                      <SparklesIcon className="w-4 h-4 mr-2" />
+                      <SparklesIcon className="w-5 h-5 mr-3" />
                       <span>Genera Prompt</span>
                     </>
                   )}
@@ -538,33 +524,33 @@ const HomeView: React.FC = () => {
 
           {/* Suggestion Cards Carousel - Nascosta durante la generazione */}
           {!isLoading && (
-          <section className="bg-slate-800/30 border border-slate-700 p-2 sm:p-3 rounded-xl lg:w-1/2 flex-shrink-0 overflow-hidden flex flex-col">
-            <h3 className="text-sm sm:text-base font-semibold text-emerald-400 mb-2">Idee per iniziare</h3>
-            <div className="flex lg:flex-col gap-1.5 sm:gap-2 md:gap-3 overflow-x-auto lg:overflow-y-auto scrollbar-hide py-2 lg:justify-start justify-center flex-1">
+          <section className="bg-slate-800/30 border border-slate-700 p-5 sm:p-6 rounded-xl lg:w-1/2 flex-shrink-0 overflow-hidden flex flex-col">
+            <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold text-emerald-400 mb-4 sm:mb-5">Idee per iniziare</h3>
+            <div className="flex lg:flex-col gap-3 sm:gap-4 overflow-x-auto lg:overflow-y-auto scrollbar-hide py-2 lg:justify-start justify-center flex-1">
               {currentSuggestions.map((suggestion, index) => {
                 const IconComponent = getSuggestionIcon(suggestion.topic);
                 return (
                   <div
                     key={suggestion.id}
-                    className="flex-none w-56 sm:w-64 md:w-72 lg:w-full bg-slate-700/50 border border-slate-600 p-2 sm:p-3 md:p-4 rounded-lg cursor-pointer hover:bg-slate-700/70 hover:border-slate-500 transition-all duration-300 transform hover:scale-105 flex flex-col h-36 sm:h-48 md:h-56 lg:h-auto lg:min-h-[140px]"
+                    className="flex-none w-64 sm:w-72 md:w-80 lg:w-full bg-slate-700/50 border border-slate-600 p-4 sm:p-5 md:p-6 rounded-lg cursor-pointer hover:bg-slate-700/70 hover:border-slate-500 transition-all duration-300 transform hover:scale-105 flex flex-col h-44 sm:h-52 md:h-60 lg:h-auto lg:min-h-[160px]"
                     onClick={() => setTopic(suggestion.prompt.azione)}
                   >
                     {/* Icona in alto */}
-                    <div className="flex justify-center mb-1.5 sm:mb-2 md:mb-3">
-                      <div className="bg-slate-600/50 p-1.5 sm:p-2 md:p-3 rounded-full">
-                        <IconComponent className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-8 lg:h-8 text-sky-400" />
+                    <div className="flex justify-center mb-3 sm:mb-4">
+                      <div className="bg-slate-600/50 p-2 sm:p-3 md:p-4 rounded-full">
+                        <IconComponent className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-10 lg:h-10 text-sky-400" />
                       </div>
                     </div>
-                    
+
                     {/* Contenuto centrato */}
-                    <div className="flex-1 flex flex-col justify-center items-center text-center space-y-1 sm:space-y-2">
+                    <div className="flex-1 flex flex-col justify-center items-center text-center space-y-2 sm:space-y-3">
                       {/* Titolo */}
-                      <h4 className="font-semibold text-sky-400 text-xs sm:text-sm md:text-base leading-tight sm:leading-relaxed px-1 sm:px-2">
+                      <h4 className="font-semibold text-sky-400 text-sm sm:text-base md:text-lg leading-relaxed px-2">
                         {suggestion.topic}
                       </h4>
-                      
+
                       {/* Descrizione dal prompt C.R.A.F.T. */}
-                      <p className="text-slate-300 text-xs leading-tight sm:leading-relaxed px-1 sm:px-2 line-clamp-2 sm:line-clamp-3 md:line-clamp-4">
+                      <p className="text-slate-300 text-sm sm:text-base leading-relaxed px-2 line-clamp-2 sm:line-clamp-3 md:line-clamp-4">
                         {suggestion.prompt.azione}
                       </p>
                     </div>

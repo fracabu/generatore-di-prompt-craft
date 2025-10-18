@@ -151,48 +151,34 @@ const ResultView: React.FC = () => {
   }
 
   return (
-    <div className="bg-slate-900 text-slate-200 font-sans py-4 sm:py-6 lg:py-8">
+    <div className="bg-slate-900 text-slate-200 font-sans flex-1 flex flex-col overflow-auto">
       {error && <WarningModal title={error.includes("successo") ? "Successo" : "Attenzione"} onClose={() => setError(null)}><p>{error}</p></WarningModal>}
 
-      <div className="max-w-5xl mx-auto p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-6 lg:space-y-8">
+      <div className="flex-1 max-w-screen-2xl mx-auto w-full px-6 sm:px-12 lg:px-20 py-8 sm:py-12 space-y-8">
         {/* Header */}
         <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           {/* Mobile: Centered content with back button */}
           <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-3 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
-            {/* Mobile: Back button - centered and compact */}
-            <div className="sm:hidden flex justify-center w-full">
-              <button
-                onClick={handleBackToHome}
-                className="flex items-center space-x-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-semibold py-1 px-2 rounded-lg transition-colors text-xs"
-              >
-                <ArrowLeftIcon className="w-3 h-3" />
-                <span>Indietro</span>
-              </button>
-            </div>
-            
-            {/* Title - centered on mobile, left-aligned on desktop */}
-            <div className="text-center sm:text-left">
-              <h2 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-slate-100">Prompt Generato</h2>
-              <p className="text-slate-400 mt-0.5 sm:mt-1 text-xs sm:text-sm">Argomento: {topic}</p>
-            </div>
-            
-            {/* Desktop: Back button - inline with title */}
-            <div className="hidden sm:flex">
-              <button
-                onClick={handleBackToHome}
-                className="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-semibold py-2 px-4 rounded-lg transition-colors text-sm"
-              >
-                <ArrowLeftIcon className="w-5 h-5" />
-                <span>Indietro</span>
-              </button>
+            <button
+              onClick={handleBackToHome}
+              className="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-semibold py-2 px-4 rounded-lg transition-colors text-sm sm:text-base"
+            >
+              <ArrowLeftIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+              <span>Indietro</span>
+            </button>
+
+            {/* Title */}
+            <div>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-100">Prompt Generato</h2>
+              <p className="text-slate-400 text-base sm:text-lg lg:text-xl mt-2">Argomento: {topic}</p>
             </div>
           </div>
         </header>
 
         {/* C.R.A.F.T. Editor */}
-        <section className="bg-slate-800/50 border border-slate-700 p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-lg">
-          <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-emerald-400 mb-3 sm:mb-4">Modifica il tuo Prompt C.R.A.F.T.</h3>
-          <div className="space-y-3 sm:space-y-4">
+        <section className="bg-slate-800/50 border border-slate-700 p-6 sm:p-8 rounded-2xl shadow-lg">
+          <h3 className="text-xl sm:text-2xl font-semibold text-emerald-400 mb-5">Modifica il tuo Prompt C.R.A.F.T.</h3>
+          <div className="space-y-4 sm:space-y-5">
             {/* Ordine fisso dei campi */}
             {[
               { key: 'contexto', label: 'Contesto' },
@@ -202,7 +188,7 @@ const ResultView: React.FC = () => {
               { key: 'target', label: 'Target' }
             ].map(({ key, label }) => (
               <div key={key}>
-                <label htmlFor={key} className="block text-sm sm:text-md font-medium text-slate-300 mb-1.5 sm:mb-2">
+                <label htmlFor={key} className="block text-base sm:text-lg font-medium text-slate-300 mb-2">
                   {label}
                 </label>
                 <textarea
@@ -210,7 +196,7 @@ const ResultView: React.FC = () => {
                   value={craftPrompt[key as keyof CraftPrompt] || ''}
                   onChange={(e) => handleCraftInputChange(key as keyof CraftPrompt, e.target.value)}
                   rows={2}
-                  className="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 sm:p-3 text-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors text-sm"
+                  className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 sm:p-4 text-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors text-sm sm:text-base"
                   placeholder={`Inserisci ${label.toLowerCase()}...`}
                 />
               </div>
@@ -219,15 +205,15 @@ const ResultView: React.FC = () => {
         </section>
 
         {/* Preview Section */}
-        <section className="bg-slate-800/50 border border-slate-700 p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-lg">
-          <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-fuchsia-400">Anteprima del Prompt</h3>
+        <section className="bg-slate-800/50 border border-slate-700 p-6 sm:p-8 rounded-2xl shadow-lg">
+          <div className="flex items-center justify-between mb-5">
+            <h3 className="text-xl sm:text-2xl font-semibold text-fuchsia-400">Anteprima del Prompt</h3>
           </div>
-          <div className="bg-slate-900/50 p-3 sm:p-4 rounded-lg whitespace-pre-wrap text-slate-300 font-mono text-xs sm:text-sm mb-4 sm:mb-6 max-h-60 sm:max-h-80 overflow-y-auto scrollbar-hide">
+          <div className="bg-slate-900/50 p-4 sm:p-5 rounded-lg whitespace-pre-wrap text-slate-300 font-mono text-sm sm:text-base mb-6 max-h-60 sm:max-h-80 overflow-y-auto scrollbar-hide">
             {combinePrompt(craftPrompt)}
           </div>
           
-          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-3 lg:gap-4">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4">
             <button 
               onClick={handleExportPrompt} 
               className="pushable-3d relative border-none bg-transparent p-0 cursor-pointer outline-offset-4 transition-all duration-250 hover:brightness-110 group w-full sm:w-auto"
@@ -272,12 +258,12 @@ const ResultView: React.FC = () => {
               <span 
                 className="absolute top-0 left-0 w-full h-full rounded-xl bg-gradient-to-l from-green-950 via-green-700 to-green-950"
               />
-              <span 
-                className="relative flex items-center justify-center gap-2 px-3 py-2 sm:px-4 sm:py-2 rounded-xl text-white font-semibold bg-green-600 transition-transform duration-300 ease-out text-sm"
+              <span
+                className="relative flex items-center justify-center gap-2 px-4 py-3 sm:px-5 sm:py-3 rounded-xl text-white font-semibold bg-green-600 transition-transform duration-300 ease-out text-sm sm:text-base"
                 style={{ transform: 'translateY(-2px)' }}
               >
-                <DocumentDuplicateIcon className="w-4 h-4 sm:w-5 sm:h-5" /> 
-                <span className="hidden sm:inline">Esporta MD</span>
+                <DocumentDuplicateIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+                <span>Esporta MD</span>
               </span>
             </button>
             <button 
@@ -324,12 +310,12 @@ const ResultView: React.FC = () => {
               <span 
                 className="absolute top-0 left-0 w-full h-full rounded-xl bg-gradient-to-l from-blue-950 via-blue-700 to-blue-950"
               />
-              <span 
-                className="relative flex items-center justify-center gap-2 px-3 py-2 sm:px-4 sm:py-2 rounded-xl text-white font-semibold bg-blue-600 transition-transform duration-300 ease-out text-sm"
+              <span
+                className="relative flex items-center justify-center gap-2 px-4 py-3 sm:px-5 sm:py-3 rounded-xl text-white font-semibold bg-blue-600 transition-transform duration-300 ease-out text-sm sm:text-base"
                 style={{ transform: 'translateY(-2px)' }}
               >
-                <TestTubeIcon className="w-4 h-4 sm:w-5 sm:h-5" /> 
-                <span className="hidden sm:inline">Testa Prompt</span>
+                <TestTubeIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+                <span>Testa Prompt</span>
               </span>
             </button>
             <button 
@@ -376,12 +362,12 @@ const ResultView: React.FC = () => {
               <span 
                 className="absolute top-0 left-0 w-full h-full rounded-xl bg-gradient-to-l from-slate-950 via-slate-700 to-slate-950"
               />
-              <span 
-                className="relative flex items-center justify-center gap-2 px-3 py-2 sm:px-4 sm:py-2 rounded-xl text-white font-semibold bg-slate-600 transition-transform duration-300 ease-out text-sm"
+              <span
+                className="relative flex items-center justify-center gap-2 px-4 py-3 sm:px-5 sm:py-3 rounded-xl text-white font-semibold bg-slate-600 transition-transform duration-300 ease-out text-sm sm:text-base"
                 style={{ transform: 'translateY(-2px)' }}
               >
-                {copied ? <CheckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" /> : <DocumentDuplicateIcon className="w-4 h-4 sm:w-5 sm:h-5" />}
-                <span className="hidden sm:inline">{copied ? 'Copiato!' : 'Copia Prompt'}</span>
+                {copied ? <CheckIcon className="w-5 h-5 sm:w-6 sm:h-6 text-green-400" /> : <DocumentDuplicateIcon className="w-5 h-5 sm:w-6 sm:h-6" />}
+                <span>{copied ? 'Copiato!' : 'Copia Prompt'}</span>
               </span>
             </button>
           </div>
