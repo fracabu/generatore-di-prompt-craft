@@ -303,6 +303,13 @@ Do not use abbreviations like C, R, A, F, T. Do not use arrays. Do not use capit
       throw new Error(`🔑 Chiave API ${providerName} non valida o mancante.\n\nVerifica la tua chiave API nelle impostazioni (pulsante API in alto a destra).`);
     }
 
+    // Gestione errore 404 - Modello non trovato
+    if (error?.message?.includes('404') || error?.message?.includes('not found') || error?.message?.includes('NOT_FOUND')) {
+      const modelMatch = error.message.match(/models\/([\w\-\.]+)/);
+      const modelName = modelMatch ? modelMatch[1] : 'sconosciuto';
+      throw new Error(`🔍 Modello "${modelName}" non disponibile.\n\n💡 Soluzioni:\n• Seleziona un modello diverso (es. gemini-1.5-flash)\n• Cancella la cache del browser e ricarica\n• Verifica i modelli disponibili su ai.google.dev/models`);
+    }
+
     // Errore generico
     throw new Error(`❌ Errore API ${providerName}: ${error.message || 'Errore sconosciuto'}\n\nVerifica la connessione di rete e la chiave API.`);
   }
@@ -374,6 +381,13 @@ export async function testGeneratedPrompt(prompt: string, provider: 'gemini' | '
         // Gestione errore 401 - API Key non valida
         if (error?.message?.includes('401') || error?.message?.includes('API key')) {
             throw new Error(`🔑 Chiave API ${providerName} non valida o mancante.\n\nVerifica la tua chiave API nelle impostazioni (pulsante API in alto a destra).`);
+        }
+
+        // Gestione errore 404 - Modello non trovato
+        if (error?.message?.includes('404') || error?.message?.includes('not found') || error?.message?.includes('NOT_FOUND')) {
+            const modelMatch = error.message.match(/models\/([\w\-\.]+)/);
+            const modelName = modelMatch ? modelMatch[1] : 'sconosciuto';
+            throw new Error(`🔍 Modello "${modelName}" non disponibile.\n\n💡 Soluzioni:\n• Seleziona un modello diverso (es. gemini-1.5-flash)\n• Cancella la cache del browser e ricarica\n• Verifica i modelli disponibili su ai.google.dev/models`);
         }
 
         // Errore generico

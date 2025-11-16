@@ -342,12 +342,8 @@ const HomeView: React.FC = () => {
                     onChange={(e) => setGeminiModel(e.target.value)}
                     className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm sm:text-base"
                   >
-                    <option value="gemini-2.5-flash">Gemini 2.5 Flash (Consigliato)</option>
-                    <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
-                    <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash (Experimental)</option>
-                    <option value="gemini-2.0-flash-thinking-exp-01-21">Gemini 2.0 Flash Thinking</option>
-                    <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
-                    <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                    <option value="gemini-2.5-flash">Gemini 2.5 Flash (Veloce e Consigliato)</option>
+                    <option value="gemini-2.5-pro">Gemini 2.5 Pro (Massima Qualità)</option>
                   </select>
                   <p className="text-slate-400 text-sm mt-2">
                     Documentazione modelli: <a href="https://ai.google.dev/gemini-api/docs/models/gemini" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 underline">ai.google.dev/gemini-api/docs/models</a>
