@@ -155,7 +155,7 @@ Your task is to use this framework to transform a user's simple topic or questio
   try {
     if (provider === 'gemini') {
       const ai = getAIInstance('gemini') as GoogleGenAI;
-      const selectedModel = localStorage.getItem('gemini_model') || 'gemini-2.0-flash-exp';
+      const selectedModel = localStorage.getItem('gemini_model') || 'gemini-2.5-flash-002';
 
       const response = await ai.models.generateContent({
         model: selectedModel,
@@ -285,10 +285,26 @@ Do not use abbreviations like C, R, A, F, T. Do not use arrays. Do not use capit
       console.log('Craft Prompt object:', craftPrompt); // Debug log
       return craftPrompt;
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error(`Error generating C.R.A.F.T. prompt with ${provider}:`, error);
     const providerName = provider === 'gemini' ? 'Gemini' : provider === 'openai' ? 'OpenAI' : 'OpenRouter';
-    throw new Error(`Impossibile generare il prompt dall'API ${providerName}. Controlla la tua chiave API e la connessione di rete.`);
+
+    // Gestione errore 429 - Quota/Rate Limit
+    if (error?.message?.includes('429') || error?.message?.includes('quota') || error?.message?.includes('RESOURCE_EXHAUSTED')) {
+      const retryMatch = error.message.match(/retry in (\d+)/i);
+      const retrySeconds = retryMatch ? Math.ceil(parseFloat(retryMatch[1])) : null;
+      const retryMessage = retrySeconds ? ` Riprova tra ${retrySeconds} secondi.` : '';
+
+      throw new Error(`⚠️ Quota API ${providerName} esaurita!${retryMessage}\n\n💡 Soluzioni:\n• Passa a un altro provider (OpenAI o OpenRouter)\n• Attendi il ripristino della quota\n• Verifica il tuo piano su ai.google.dev/usage`);
+    }
+
+    // Gestione errore 401 - API Key non valida
+    if (error?.message?.includes('401') || error?.message?.includes('API key')) {
+      throw new Error(`🔑 Chiave API ${providerName} non valida o mancante.\n\nVerifica la tua chiave API nelle impostazioni (pulsante API in alto a destra).`);
+    }
+
+    // Errore generico
+    throw new Error(`❌ Errore API ${providerName}: ${error.message || 'Errore sconosciuto'}\n\nVerifica la connessione di rete e la chiave API.`);
   }
 }
 
@@ -298,7 +314,7 @@ export async function testGeneratedPrompt(prompt: string, provider: 'gemini' | '
     try {
         if (provider === 'gemini') {
             const ai = getAIInstance('gemini') as GoogleGenAI;
-            const selectedModel = localStorage.getItem('gemini_model') || 'gemini-2.0-flash-exp';
+            const selectedModel = localStorage.getItem('gemini_model') || 'gemini-2.5-flash-002';
 
             const response = await ai.models.generateContent({
                 model: selectedModel,
@@ -342,9 +358,25 @@ export async function testGeneratedPrompt(prompt: string, provider: 'gemini' | '
             const truncated = response.choices[0].finish_reason === 'length';
             return { result, truncated };
         }
-    } catch (error) {
+    } catch (error: any) {
         console.error(`Error testing prompt with ${provider}:`, error);
         const providerName = provider === 'gemini' ? 'Gemini' : provider === 'openai' ? 'OpenAI' : 'OpenRouter';
-        throw new Error(`Impossibile ottenere una risposta per il prompt di test dall'API ${providerName}.`);
+
+        // Gestione errore 429 - Quota/Rate Limit
+        if (error?.message?.includes('429') || error?.message?.includes('quota') || error?.message?.includes('RESOURCE_EXHAUSTED')) {
+            const retryMatch = error.message.match(/retry in (\d+)/i);
+            const retrySeconds = retryMatch ? Math.ceil(parseFloat(retryMatch[1])) : null;
+            const retryMessage = retrySeconds ? ` Riprova tra ${retrySeconds} secondi.` : '';
+
+            throw new Error(`⚠️ Quota API ${providerName} esaurita!${retryMessage}\n\n💡 Soluzioni:\n• Passa a un altro provider (OpenAI o OpenRouter)\n• Attendi il ripristino della quota\n• Verifica il tuo piano su ai.google.dev/usage`);
+        }
+
+        // Gestione errore 401 - API Key non valida
+        if (error?.message?.includes('401') || error?.message?.includes('API key')) {
+            throw new Error(`🔑 Chiave API ${providerName} non valida o mancante.\n\nVerifica la tua chiave API nelle impostazioni (pulsante API in alto a destra).`);
+        }
+
+        // Errore generico
+        throw new Error(`❌ Errore test API ${providerName}: ${error.message || 'Errore sconosciuto'}\n\nVerifica la connessione di rete e la chiave API.`);
     }
 }
