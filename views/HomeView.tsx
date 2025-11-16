@@ -247,9 +247,11 @@ const HomeView: React.FC = () => {
         {/* Main Content */}
         <div className={`flex-1 flex flex-col lg:flex-row gap-6 sm:gap-8 min-h-0 w-full ${isLoading ? 'justify-center items-center' : ''}`}>
           {/* Input Section */}
-          <section className={`bg-slate-800/50 border border-slate-700 p-6 sm:p-8 rounded-xl shadow-lg transition-all duration-300 ${isLoading ? 'max-w-3xl w-full' : 'lg:w-1/2 flex-shrink-0'}`}>
-            {/* Provider Selection */}
-            <div className="mb-5 sm:mb-6">
+          <section className={`bg-slate-800/50 border border-slate-700 p-6 sm:p-8 rounded-xl shadow-lg transition-all duration-300 flex flex-col ${isLoading ? 'max-w-3xl w-full' : 'lg:w-1/2 flex-shrink-0'}`}>
+            {/* Scrollable content area */}
+            <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800 pr-2 -mr-2 min-h-0">
+              {/* Provider Selection */}
+              <div className="mb-4 sm:mb-5">
               <label className="block text-base sm:text-lg lg:text-xl font-semibold text-sky-400 mb-3">Seleziona AI Provider</label>
               <div className="grid grid-cols-3 gap-3">
                 <button
@@ -438,9 +440,8 @@ const HomeView: React.FC = () => {
               )}
             </div>
 
-            <label htmlFor="topic-input" className="block text-base sm:text-lg lg:text-xl font-semibold text-sky-400 mb-2 sm:mb-3">Inserisci il tuo argomento</label>
-            <p className="text-slate-400 mb-3 sm:mb-4 text-sm sm:text-base">Descrivi cosa vuoi ottenere. Es: "un'email di marketing per un nuovo prodotto"</p>
-            <div className="flex flex-col gap-3 sm:gap-4">
+              <label htmlFor="topic-input" className="block text-base sm:text-lg lg:text-xl font-semibold text-sky-400 mb-2 sm:mb-3">Inserisci il tuo argomento</label>
+              <p className="text-slate-400 mb-3 sm:mb-4 text-sm sm:text-base">Descrivi cosa vuoi ottenere. Es: "un'email di marketing per un nuovo prodotto"</p>
               <textarea
                 ref={textareaRef}
                 id="topic-input"
@@ -457,6 +458,11 @@ const HomeView: React.FC = () => {
                 }}
                 rows={1}
               />
+            </div>
+            {/* End of scrollable area */}
+
+            {/* Fixed button at bottom */}
+            <div className="mt-4 pt-4 border-t border-slate-700 flex-shrink-0">
               <button
                 onClick={handleGeneratePrompt}
                 disabled={isLoading}
