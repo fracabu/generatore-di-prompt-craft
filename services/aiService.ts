@@ -155,7 +155,7 @@ Your task is to use this framework to transform a user's simple topic or questio
   try {
     if (provider === 'gemini') {
       const ai = getAIInstance('gemini') as GoogleGenAI;
-      const selectedModel = localStorage.getItem('gemini_model') || 'gemini-2.5-flash-002';
+      const selectedModel = localStorage.getItem('gemini_model') || 'gemini-2.5-flash';
 
       const response = await ai.models.generateContent({
         model: selectedModel,
@@ -314,7 +314,7 @@ export async function testGeneratedPrompt(prompt: string, provider: 'gemini' | '
     try {
         if (provider === 'gemini') {
             const ai = getAIInstance('gemini') as GoogleGenAI;
-            const selectedModel = localStorage.getItem('gemini_model') || 'gemini-2.5-flash-002';
+            const selectedModel = localStorage.getItem('gemini_model') || 'gemini-2.5-flash';
 
             const response = await ai.models.generateContent({
                 model: selectedModel,

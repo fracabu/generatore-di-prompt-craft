@@ -28,7 +28,7 @@ const HomeView: React.FC = () => {
   });
   const [openrouterModel, setOpenrouterModel] = useState<string>('openai/gpt-4o');
   const [openaiModel, setOpenaiModel] = useState<string>('gpt-5-2025-08-07');
-  const [geminiModel, setGeminiModel] = useState<string>('gemini-2.5-flash-002');
+  const [geminiModel, setGeminiModel] = useState<string>('gemini-2.5-flash');
   const [hasApiKey, setHasApiKey] = useState(false);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
@@ -342,8 +342,8 @@ const HomeView: React.FC = () => {
                     onChange={(e) => setGeminiModel(e.target.value)}
                     className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm sm:text-base"
                   >
-                    <option value="gemini-2.5-flash-002">Gemini 2.5 Flash (Consigliato)</option>
-                    <option value="gemini-2.5-pro-002">Gemini 2.5 Pro</option>
+                    <option value="gemini-2.5-flash">Gemini 2.5 Flash (Consigliato)</option>
+                    <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
                     <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash (Experimental)</option>
                     <option value="gemini-2.0-flash-thinking-exp-01-21">Gemini 2.0 Flash Thinking</option>
                     <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
